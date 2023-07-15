@@ -81,7 +81,8 @@ app.layout = html.Div(
             id='div_map',
             style={
                 'margin': 50,
-                'width': '1500px'
+                'width': '1500px',
+                'visibility': 'hidden',
             },
         ),
 
@@ -117,10 +118,13 @@ app.layout = html.Div(
 
 
 @app.callback(
-    Output(component_id='map', component_property='figure'),
+    [
+        Output(component_id='map', component_property='figure'),
+        Output(component_id='div_map', component_property='style'),
+    ],
     Input(component_id='radio_items', component_property='value'),
 )
-def display_map(value: str) -> Figure:
+def display_map(value: str) -> tuple[Figure, dict[str, str]]:
     fig = px.choropleth_mapbox(
         data_frame=df_grouped_by_regions,
         geojson=geodata,
@@ -150,7 +154,7 @@ def display_map(value: str) -> Figure:
             'bgcolor': 'white',
         },
     )
-    return fig
+    return fig, {'visibility': 'visible'}
 
 
 @app.callback(
