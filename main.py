@@ -1,6 +1,7 @@
+import calendar
 import typing as t
+from datetime import date
 
-import geojson
 import pandas as pd
 import plotly.express as px
 from dash import Dash, html, dcc, Output, Input
@@ -70,6 +71,45 @@ app.layout = html.Div(
 
         html.Div(
             [
+                dcc.Dropdown(
+                    id='dropdown_month',
+                    options=[{'label': x, 'value': x} for x in list(calendar.month_name) if x],
+                    value=date.today().strftime("%B"),
+                    style={
+                        'width': '300px',
+                        'margin-right': 20,
+                    },
+                ),
+            ],
+            id='div_month_list',
+            style={
+                'display': 'flex',
+                'justify-content': 'right',
+            },
+        ),
+
+        html.Div(
+            [
+                dcc.Dropdown(
+                    id='dropdown_years',
+                    # fixme 2020
+                    options=[{'label': x, 'value': x} for x in range(2020, date.today().year + 1)],
+                    value=date.today().year,
+                    style={
+                        'width': '300px',
+                        'margin-right': 20,
+                    },
+                ),
+            ],
+            id='div_years_list',
+            style={
+                'display': 'flex',
+                'justify-content': 'right',
+            },
+        ),
+
+        html.Div(
+            [
                 dcc.Graph(
                     id='map',
                     config={
@@ -127,7 +167,8 @@ app.layout = html.Div(
 def display_map(value: str) -> tuple[Figure, dict[str, str]]:
     fig = px.choropleth_mapbox(
         data_frame=df_grouped_by_regions,
-        geojson=geodata,
+        geojson=get_geodata(),
+        # opacity=0.5,
         locations=df_grouped_by_regions.id,
         color=value,
         hover_name=df_grouped_by_regions.region,
@@ -163,10 +204,10 @@ def display_map(value: str) -> tuple[Figure, dict[str, str]]:
         Output(component_id='div_statistics_on_provider_of_region', component_property='children'),
         Output(component_id='dropdown_regions', component_property='value'),
     ],
-    Input(component_id='map', component_property='clickData'),
+    Input(component_id='map', component_property='hoverData'),
 )
-def update_tables_with_statistics_by_region(clickData: t.Optional[dict[str, list]]) -> tuple[Table, Table, str]:
-    region: str = DEFAULT_REGION if clickData is None else clickData['points'][0]['hovertext']
+def update_tables_with_statistics_by_region(hoverData: t.Optional[dict[str, list]]) -> tuple[Table, Table, str]:
+    region: str = DEFAULT_REGION if hoverData is None else hoverData['points'][0]['hovertext']
 
     return Table(
         id='table_statistic_for_region',
@@ -210,6 +251,5 @@ def update_tables_with_statistics_by_region_(value: t.Optional[str]) -> tuple[Ta
 if __name__ == '__main__':
     df: pd.DataFrame = get_df()
     df_grouped_by_regions: pd.DataFrame = get_df_grouped_by_regions(df=df)
-    geodata: geojson.FeatureCollection = get_geodata()
 
     app.run(debug=True)
