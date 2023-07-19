@@ -1,3 +1,8 @@
+import locale
+from datetime import date
+
+locale.setlocale(locale.LC_TIME, 'ru_RU')
+
 DEFAULT_REGION = 'Москва г'
 REGIONS = (
     'Адыгея Респ',
@@ -90,14 +95,17 @@ REGIONS = (
     'Ямало-Ненецкий АО',
     'Ярославская обл',
 )
-RADIO_ITEMS = {
+
+RADIO_ITEMS: dict[str, str] = {
     'accounts_count': 'Количество актуальных ЛС',
     'payment_documents_count': 'Количество размещенных платежных документов',
     'charges_sum': 'Всего начислено',
 }
-DEFAULT_RADIO_ITEM = 'payment_documents_count'
-STYLE_FOR_LABEL = {
-    'margin': 20,
-    'fontSize': 20,
-    'font-family': 'Arial Black',
-}
+DEFAULT_RADIO_ITEM: str = 'accounts_count'
+
+ORG_ICON_PATH: str = 'assets/icons/org-icon.png'
+MKD_ICON_PATH: str = 'assets/icons/mkd-icon.png'
+JD_ICON_PATH: str = 'assets/icons/jd-icon.png'
+
+# fixme unused
+CURRENT_MONTH: str = date.today().strftime('%B')

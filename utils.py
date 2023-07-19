@@ -1,3 +1,4 @@
+import base64
 import typing as t
 
 import geojson
@@ -27,6 +28,11 @@ def get_df_grouped_by_regions(df: pd.DataFrame) -> pd.DataFrame:
         'payment_documents_count': 'sum',
         'charges_sum': 'sum',
     }).reset_index()
+
+
+def get_total_integer(df: pd.DataFrame, field_name: str) -> str:
+    total_sum: float = round(df[field_name].sum())
+    return '{:,}'.format(total_sum).replace(',', ' ')
 
 
 def get_organizations_by_region(df: pd.DataFrame, region: str) -> list[dict[str, t.Any]]:
@@ -59,3 +65,9 @@ def get_geodata(path: str = 'result.geojson') -> geojson.FeatureCollection:
     with open(file=path, encoding='utf-8') as f:
         data = geojson.load(f)
     return data
+
+
+def b64_image(image_filename: str) -> str:
+    with open(image_filename, 'rb') as f:
+        image = f.read()
+    return 'data:image/png;base64,' + base64.b64encode(image).decode('utf-8')
