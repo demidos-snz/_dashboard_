@@ -4,7 +4,8 @@ from datetime import date
 import pandas as pd
 import plotly.express as px
 from dash import Dash, html, dcc, Output, Input
-from dash.dash_table import DataTable as Table
+from dash.dash_table import DataTable as Table, DataTable
+from dash.html import Button
 from plotly.graph_objs import Figure
 
 from settings import DEFAULT_REGION, REGIONS, DEFAULT_RADIO_ITEM, ORG_ICON_PATH, MKD_ICON_PATH, JD_ICON_PATH
@@ -300,11 +301,16 @@ app.layout = html.Div(
                 html.H3(
                     id='label_statistic_for_region',
                     children='Статистика по региону:',
+                    style={
+                        'visibility': 'hidden',
+                        'margin': 20,
+                    },
                 ),
 
                 html.Div(
                     id='div_statistic_for_region',
                     style={
+                        'visibility': 'hidden',
                         'margin': 20,
                     },
                 ),
@@ -312,11 +318,16 @@ app.layout = html.Div(
                 html.H3(
                     id='label_statistics_on_provider_of_region',
                     children='Статистика по поставщикам региона (ТОП 10):',
+                    style={
+                        'visibility': 'hidden',
+                        'margin': 20,
+                    },
                 ),
 
                 html.Div(
                     id='div_statistics_on_provider_of_region',
                     style={
+                        'visibility': 'hidden',
                         'margin': 20,
                     },
                 ),
@@ -399,26 +410,33 @@ def display_map(value: str) -> tuple[Figure, dict[str, str]]:
     return fig, {'visibility': 'visible'}
 
 
-@app.callback(
-    [
-        Output(component_id='div_statistic_for_region', component_property='children'),
-        Output(component_id='div_statistics_on_provider_of_region', component_property='children'),
-        Output(component_id='dropdown_regions', component_property='value'),
-    ],
-    Input(component_id='map', component_property='hoverData'),
-)
-def update_tables_with_statistics_by_region(hoverData: t.Optional[dict[str, list]]) -> tuple[Table, Table, str]:
-    region: str = DEFAULT_REGION if hoverData is None else hoverData['points'][0]['hovertext']
-
-    return Table(
-        id='table_statistic_for_region',
-        data=get_region_data(region=region, df=df),
-        page_size=10,
-    ), Table(
-        id='table_statistics_on_provider_of_region',
-        data=get_organizations_by_region(region=region, df=df),
-        page_size=10,
-    ), region
+# @app.callback(
+#     [
+#         # Output(component_id='div_statistic_for_region', component_property='children'),
+#         Output(component_id='div_statistic_for_region', component_property='style'),
+#         # Output(component_id='div_statistics_on_provider_of_region', component_property='children'),
+#         Output(component_id='div_statistics_on_provider_of_region', component_property='style'),
+#         Output(component_id='dropdown_regions', component_property='value'),
+#     ],
+#     Input(component_id='map', component_property='hoverData'),
+# )
+# def update_tables_with_statistics_by_region(hoverData: t.Optional[dict[str, list]]) \
+#         -> t.Optional[tuple[Table, Table, str]]:
+#     if hoverData is None:
+#         # fixme ?
+#         return None
+#     else:
+#         region: str = hoverData['points'][0]['hovertext']
+#
+#         return Table(
+#             id='table_statistic_for_region',
+#             data=get_region_data(region=region, df=df),
+#             page_size=10,
+#         ), Table(
+#             id='table_statistics_on_provider_of_region',
+#             data=get_organizations_by_region(region=region, df=df),
+#             page_size=10,
+#         ), region
 
 
 @app.callback(
@@ -426,13 +444,26 @@ def update_tables_with_statistics_by_region(hoverData: t.Optional[dict[str, list
         Output(component_id='div_map', component_property='style', allow_duplicate=True),
         Output(component_id='div_radio_items', component_property='style', allow_duplicate=True),
         Output(component_id='back_to_map', component_property='children', allow_duplicate=True),
-        Output(component_id='back_to_map', component_property='style', allow_duplicate=True)
+        Output(component_id='back_to_map', component_property='style', allow_duplicate=True),
+        Output(component_id='div_statistic_for_region', component_property='children'),
+        Output(component_id='div_statistic_for_region', component_property='style'),
+        Output(component_id='div_statistics_on_provider_of_region', component_property='children'),
+        Output(component_id='div_statistics_on_provider_of_region', component_property='style'),
+        Output(component_id='label_statistic_for_region', component_property='style'),
+        Output(component_id='label_statistics_on_provider_of_region', component_property='style'),
     ],
     Input(component_id='map', component_property='clickData'),
     prevent_initial_call=True
 )
-def hide_map(clickData) -> tuple[dict, dict, html.Button, dict]:
+def hide_map(clickData) \
+        -> tuple[
+            dict[str, str], dict[str, str], Button, dict[str, t.Any],
+            DataTable, dict[str, str], DataTable, dict[str, str],
+            dict[str, str], dict[str, str],
+        ]:
     if clickData is not None:
+        # fixme ?
+        region: str = clickData['points'][0]['hovertext']
         return (
             {'display': 'none'},
             {'display': 'none'},
@@ -446,6 +477,20 @@ def hide_map(clickData) -> tuple[dict, dict, html.Button, dict]:
                 'display': 'block',
                 'margin': 20,
             },
+            Table(
+                id='table_statistic_for_region',
+                data=get_region_data(region=region, df=df),
+                page_size=10,
+            ),
+            {'visibility': 'visible'},
+            Table(
+                id='table_statistics_on_provider_of_region',
+                data=get_organizations_by_region(region=region, df=df),
+                page_size=10,
+            ),
+            {'visibility': 'visible'},
+            {'visibility': 'visible'},
+            {'visibility': 'visible'},
         )
 
 
@@ -454,11 +499,19 @@ def hide_map(clickData) -> tuple[dict, dict, html.Button, dict]:
         Output(component_id='div_map', component_property='style', allow_duplicate=True),
         Output(component_id='div_radio_items', component_property='style', allow_duplicate=True),
         Output(component_id='back_to_map', component_property='style', allow_duplicate=True),
+        Output(component_id='div_statistic_for_region', component_property='style'),
+        Output(component_id='div_statistics_on_provider_of_region', component_property='style'),
+        Output(component_id='label_statistic_for_region', component_property='style'),
+        Output(component_id='label_statistics_on_provider_of_region', component_property='style'),
     ],
     Input(component_id='back_to_map', component_property='n_clicks'),
     prevent_initial_call=True,
 )
-def back_to_map(n_clicks: int) -> tuple[dict[str, t.Any], dict[str, t.Any], dict[str, t.Any]]:
+def back_to_map(n_clicks: int) \
+        -> tuple[
+            dict[str, t.Any], dict[str, t.Any], dict[str, t.Any], dict[str, str],
+            dict[str, str], dict[str, str], dict[str, str],
+        ]:
     return (
         {'display': 'block'},
         {
@@ -474,6 +527,10 @@ def back_to_map(n_clicks: int) -> tuple[dict[str, t.Any], dict[str, t.Any], dict
             'alignItems': 'center',
         },
         {'display': 'none'},
+        {'visibility': 'hidden'},
+        {'visibility': 'hidden'},
+        {'visibility': 'hidden'},
+        {'visibility': 'hidden'},
     )
 
 
