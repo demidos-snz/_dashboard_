@@ -1,4 +1,10 @@
+import calendar
+import locale
+import typing as t
+
 import pandas as pd
+
+locale.setlocale(locale.LC_TIME, 'ru_RU')
 
 
 DEFAULT_REGION: str = ''
@@ -94,6 +100,7 @@ REGIONS: tuple[str, ...] = (
     'Ярославская область',
 )
 
+# fixme delete RADIO_ITEMS
 RADIO_ITEMS: dict[str, str] = {
     'accounts_count': 'Количество актуальных ЛС',
     'payment_documents_count': 'Количество размещенных платежных документов',
@@ -105,29 +112,8 @@ ORG_ICON_PATH: str = 'assets/icons/org-icon.png'
 MKD_ICON_PATH: str = 'assets/icons/mkd-icon.png'
 JD_ICON_PATH: str = 'assets/icons/jd-icon.png'
 
-DATATABLE_HEADER_STYLE: dict[str, str] = {
-    'backgroundColor': '#f2f5f8',
-    'fontWeight': 'bold',
-    'color': 'black',
-    'textAlign': 'center',
-    'fontFamily': 'RobotoCondensed-Light',
-    'fontSize': '1.2rem',
-}
-DATATABLE_DATA_STYLE: dict[str, str] = {
-    'textAlign': 'center',
-    'color': 'black',
-}
-
-# fixme rename
-COLUMNS: list[str] = [
-    'region_code', 'charged_sum', 'ch_total_sum',
-    'already_payed_sum', 'previous_period_debts_sum', 'beginning_period_advance_sum',
-]
 NEW_TER: pd.DataFrame = pd.DataFrame(
     data={
-        # 'report_month': ['2023-05-01', '2023-05-01','2023-05-01','2023-05-01'],
-        # 'year': [2023,2023,2023,2023],
-        # 'month': [5, 5, 5, 5],
         'region_code': [93, 94, 95, 96],
         'region_name': [
             'Донецкая Народная республика',
@@ -138,9 +124,28 @@ NEW_TER: pd.DataFrame = pd.DataFrame(
         'charged_sum': [0, 0, 0, 0],
         'already_payed_sum': [0, 0, 0, 0],
         'previous_period_debts_sum': [0, 0, 0, 0],
-        # 'ch_total_sum': [0, 0, 0, 0],
-        # 'oayment_document_count': [0, 0, 0, 0],
-        # 'objects_count': [0, 0, 0, 0],
-        # 'objects_count': [0, 0, 0, 0],
-    }
+    },
 )
+
+MONTHS: tuple[str] = tuple(month for month in list(calendar.month_name) if month)
+
+BUTTON_STYLE: dict[str, t.Any] = {
+    'fontFamily': 'RobotoCondensed-Light',
+    'margin-right': 20,
+    'display': 'inline-block',
+    'height': '38px',
+    'color': '#555',
+    'textAlign': 'center',
+    'font-size': '11px',
+    'line-height': '38px',
+    'letterSpacing': '.1rem',
+    'text-transform': 'uppercase',
+    'font-weight': 'bold',
+    'text-decoration': 'none',
+    'white-space': 'nowrap',
+    'background-color': 'transparent',
+    'border-radius': '4px',
+    'border': '1px solid #bbb',
+    'cursor': 'pointer',
+    'box-sizing': 'border-box',
+}
