@@ -1,0 +1,33 @@
+@font-face {
+    font-family: 'RobotoCondensed-Light';
+    src: url('../fonts/RobotoCondensed-Light.ttf');
+}
+
+@font-face {
+    font-family: 'RobotoCondensed-Bold';
+    src: url('../fonts/RobotoCondensed-Bold.ttf');
+}
+
+@font-face {
+    font-family: 'RobotoCondensed-Regular';
+    src: url('../fonts/RobotoCondensed-Regular.ttf');
+}
+
+body {
+    font-family: 'RobotoCondensed-Light', sans-serif;
+    color: rgba(13, 31, 62, 0.74);
+}
+
+h1 {
+    text-align: center;
+    font-family: 'RobotoCondensed-Regular', sans-serif;
+    /*font_weight: 500;*/
+    font_size: 1.5rem;
+    word-break: break-word;
+    color: #000;
+}
+
+h3 {
+    font-family: 'RobotoCondensed-Light', sans-serif;
+    text-align: center;
+}
