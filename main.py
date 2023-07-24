@@ -1,18 +1,63 @@
-import typing as t
-from datetime import date
+import calendar
+import locale
 
+import geojson
 import pandas as pd
 import plotly.express as px
-from dash import Dash, html, dcc, Output, Input
-from dash.dash_table import DataTable as Table
-from plotly.graph_objs import Figure
+from clickhouse_driver import Client
+from dash import Dash, html, dcc, Output, Input, State
+from dash_bootstrap_components import Alert
 
-from settings import DEFAULT_REGION, REGIONS, DEFAULT_RADIO_ITEM, ORG_ICON_PATH, MKD_ICON_PATH, JD_ICON_PATH
-from utils import (
-    get_df, get_geodata, get_df_grouped_by_regions,
-    get_organizations_by_region, get_region_data, b64_image,
-    get_total_integer,
+from get_data import get_data_from_client, get_df_with_filter
+from secrets_ import CONNECT_PARAMS
+from settings import (
+    DEFAULT_REGION, REGIONS, DEFAULT_RADIO_ITEM,
+    ORG_ICON_PATH, MKD_ICON_PATH, JD_ICON_PATH,
 )
+from utils import (
+    get_geodata, b64_image, get_total_integer,
+    get_current_month_from_db, get_current_year_from_db, get_all_years_from_db,
+    convert_month_from_dashboard_to_int, get_current_month_from_db_int,
+)
+
+locale.setlocale(locale.LC_TIME, 'ru_RU')
+
+# fixme
+client: Client = Client(**CONNECT_PARAMS)
+
+CURRENT_MONTH_FROM_DB: str = get_current_month_from_db(client=client)
+CURRENT_MONTH_FROM_DB_INT: int = get_current_month_from_db_int(client=client)
+ALL_YEARS_FROM_DB: list[int] = get_all_years_from_db(client=client)
+CURRENT_YEAR_FROM_DB: int = get_current_year_from_db(years=ALL_YEARS_FROM_DB)
+
+lsql = """
+select report_month,
+    extract(year from report_month) as "year",
+    extract(month from report_month) as "month",
+    toInt32(region_code) as region_code,
+    region_name,
+    round(charged_sum) as charged_sum,
+    --round(ch_total_sum) as ch_total_sum,
+    --payment_document_count,
+    --toInt64(objects_count) as objects_count,
+    round(already_payed_sum) as already_payed_sum,
+    round(previous_period_debts_sum) as previous_period_debts_sum
+    --round(beginning_period_advance_sum) as beginning_period_advance_sum,
+    --toInt64(objects_with_debts_count) as objects_with_debts_count
+from ois_visual.charges_payed_debts_by_regions t1
+SETTINGS
+     max_bytes_before_external_group_by=20000000000, 
+     max_memory_usage=40000000000;
+"""
+df_all: pd.DataFrame = get_data_from_client(query=lsql)
+# df_all.to_csv('df_all.csv', index=False, encoding='cp1251', sep=';')
+df_grouped_by_regions_default: pd.DataFrame = get_df_with_filter(
+    df=df_all,
+    year=CURRENT_YEAR_FROM_DB,
+    month=convert_month_from_dashboard_to_int(CURRENT_MONTH_FROM_DB),
+)
+
+client.disconnect()
 
 app = Dash(
     name=__name__,
@@ -21,198 +66,186 @@ app = Dash(
 
 app.layout = html.Div(
     children=[
+        html.Div(id='map_alert'),
 
         html.H1(
             id='label_dashboard',
-            className='row',
             children='Мониторинг отрасли ЖКХ',
+            style={
+                'fontSize': '2.5rem',
+                'fontFamily': 'RobotoCondensed-Regular',
+            },
         ),
 
-        html.Hr(),
+        html.Hr(
+            style={
+                'margin-top': 5,
+                'margin-bottom': 5,
+            },
+        ),
+
+        html.Div(
+            id='back_to_map',
+        ),
 
         html.Div(
             [
                 html.Div(
                     [
-                        html.Div(
-                            dcc.Dropdown(
-                                id='dropdown_years',
-                                # fixme 2020
-                                # options=[{'label': x, 'value': x} for x in range(2020, date.today().year + 1)],
-                                options=[2023],
-                                value=date.today().year,
-                            ),
-                            style={
-                                'width': '300px',
-                                'margin-left': 20,
-                                'margin-bottom': 5,
-                            },
-                        ),
-
-                        html.Div(
-                            dcc.Dropdown(
-                                id='dropdown_month',
-                                # options=[{'label': x, 'value': x} for x in list(calendar.month_name) if x],
-                                options=['May'],
-                                # value=date.today().strftime('%B'),
-                                value='May',
-                            ),
-                            style={
-                                'width': '300px',
-                                'margin-left': 20,
-                                'margin-bottom': 5,
-                            },
-                        ),
-                    ],
-                    id='div_month_list',
-                    style={
-                        'display': 'flex',
-                        'justify-content': 'left',
-                    },
-                ),
-
-                html.H3(
-                    children='Всего в системе:',
-                    style={
-                        'fontSize': '19px',
-                        'lineHeight': '1.15em',
-                        'fontWeight': 'bold',
-                        'color': 'rgba(13, 31, 62, 0.74)',
-                        'font-family': 'RobotoCondensed-Light',
-                        'margin': 35,
-                    },
-                ),
-
-                html.Div(
-                    [
-                        html.Img(
-                            src=b64_image(ORG_ICON_PATH),
-                            style={
-                                'margin-right': 5
-                            },
-                        ),
-
-                        html.Span(
-                            children=get_total_integer(df=get_df(), field_name='accounts_count'),
-                            style={
-                                'textAlign': 'left',
-                                'fontSize': '50px',
-                                'lineHeight': '1em',
-                                'fontWeight': 'bold',
-                                'color': '#2aa2cf',
-                                'fontFamily': 'RobotoCondensed-Bold',
-                                'margin': 5,
-                            },
-                        ),
-
-                        html.Span(
-                            children='лицевых счетов',
+                        html.H2(
+                            children='Всего в системе:',
                             style={
                                 'fontSize': '19px',
                                 'lineHeight': '1.15em',
                                 'fontWeight': 'bold',
                                 'color': 'rgba(13, 31, 62, 0.74)',
                                 'font-family': 'RobotoCondensed-Light',
-                                'margin': 10,
-                            },
-                        ),
-                    ],
-                    style={
-                        'height': '73px',
-                        'margin-left': 35,
-                    },
-                ),
-
-                html.Div(
-                    [
-                        html.Img(
-                            src=b64_image(MKD_ICON_PATH),
-                            style={
-                                'margin-right': 15,
                             },
                         ),
 
-                        html.Span(
-                            children=get_total_integer(df=get_df(), field_name='payment_documents_count'),
-                            style={
-                                'textAlign': 'left',
-                                'fontSize': '50px',
-                                'lineHeight': '1em',
-                                'fontWeight': 'bold',
-                                'color': '#2aa2cf',
-                                'fontFamily': 'RobotoCondensed-Bold',
-                                'margin': 5,
-                            },
-                        ),
-
-                        html.Span(
-                            # fixme month
-                            children='платежных документов размещено в мае',
-                            style={
-                                'fontSize': '19px',
-                                'lineHeight': '1.15em',
-                                'font-weight': 'bold',
-                                'color': 'rgba(13, 31, 62, 0.74)',
-                                'font-family': 'RobotoCondensed-Light',
-                                'margin': 5,
-                            },
-                        ),
-                    ],
-                    style={
-                        'height': '73px',
-                        'margin-left': 35,
-                    },
-                ),
-
-                html.Div(
-                    [
                         html.Div(
-                            html.Img(
-                                src=b64_image(JD_ICON_PATH),
-                                style={
-                                    'margin-right': 5,
-                                    'margin-top': 15,
-                                },
-                            ),
-                        ),
+                            [
+                                html.Img(
+                                    src=b64_image(ORG_ICON_PATH),
+                                    style={
+                                        'padding-right': 10,
+                                    },
+                                ),
 
-                        html.Span(
-                            children=get_total_integer(df=get_df(), field_name='charges_sum'),
+                                html.Span(
+                                    id='span_charged_sum',
+                                    children=get_total_integer(
+                                        df=df_grouped_by_regions_default,
+                                        field_name='charged_sum',
+                                    ),
+                                    style={
+                                        'textAlign': 'left',
+                                        'fontSize': '50px',
+                                        'lineHeight': '1em',
+                                        'fontWeight': 'bold',
+                                        'color': '#2aa2cf',
+                                        'fontFamily': 'RobotoCondensed-Bold',
+                                        'padding-right': 10,
+                                    },
+                                ),
+
+                                html.Span(
+                                    id='span_charged_sum_text',
+                                    children=f'начислено за {CURRENT_MONTH_FROM_DB} {CURRENT_YEAR_FROM_DB}',
+                                    style={
+                                        'fontSize': '19px',
+                                        'lineHeight': '1.15em',
+                                        'fontWeight': 'bold',
+                                        'color': 'rgba(13, 31, 62, 0.74)',
+                                        'fontFamily': 'RobotoCondensed-Light',
+                                    },
+                                ),
+                            ],
+                            id='div_org_icon',
                             style={
-                                'textAlign': 'left',
-                                'fontSize': '50px',
-                                'lineHeight': '1em',
-                                'fontWeight': 'bold',
-                                'color': '#2aa2cf',
-                                'fontFamily': 'RobotoCondensed-Bold',
-                                'margin': 5,
+                                'height': '63px',
                             },
                         ),
 
-                        # fixme month
                         html.Div(
-                            children='рублей начислено за коммунальные услуги в мае',
+                            [
+                                html.Img(
+                                    src=b64_image(MKD_ICON_PATH),
+                                    style={
+                                        'padding-right': 15,
+                                    },
+                                ),
+
+                                html.Span(
+                                    id='span_already_payed_sum',
+                                    children=get_total_integer(
+                                        df=df_grouped_by_regions_default,
+                                        field_name='already_payed_sum',
+                                    ),
+                                    style={
+                                        'textAlign': 'left',
+                                        'fontSize': '50px',
+                                        'lineHeight': '1em',
+                                        'fontWeight': 'bold',
+                                        'color': '#2aa2cf',
+                                        'fontFamily': 'RobotoCondensed-Bold',
+                                        'padding-right': 10,
+                                    },
+                                ),
+
+                                html.Span(
+                                    id='span_already_payed_sum_text',
+                                    children=f'оплачено за {CURRENT_MONTH_FROM_DB} {CURRENT_YEAR_FROM_DB}',
+                                    style={
+                                        'fontSize': '19px',
+                                        'lineHeight': '1.15em',
+                                        'fontWeight': 'bold',
+                                        'color': 'rgba(13, 31, 62, 0.74)',
+                                        'fontFamily': 'RobotoCondensed-Light',
+                                        'padding-right': 15,
+                                    },
+                                ),
+                            ],
+                            id='div_mkd_icon',
                             style={
-                                'fontSize': '19px',
-                                'lineHeight': '1.15em',
-                                'font-weight': 'bold',
-                                'color': 'rgba(13, 31, 62, 0.74)',
-                                'font-family': 'RobotoCondensed-Light',
-                                'margin': 5,
-                                'width': '300px',
+                                'height': '63px',
+                            },
+                        ),
+
+                        html.Div(
+                            [
+                                html.Div(
+                                    html.Img(
+                                        src=b64_image(JD_ICON_PATH),
+                                        style={
+                                            'padding-top': 10,
+                                            'padding-right': 10,
+                                        },
+                                    ),
+                                ),
+
+                                html.Span(
+                                    id='span_previous_period_debts_sum',
+                                    children=get_total_integer(
+                                        df=df_grouped_by_regions_default,
+                                        field_name='previous_period_debts_sum',
+                                    ),
+                                    style={
+                                        'textAlign': 'left',
+                                        'fontSize': '50px',
+                                        'lineHeight': '1em',
+                                        'fontWeight': 'bold',
+                                        'color': '#2aa2cf',
+                                        'fontFamily': 'RobotoCondensed-Bold',
+                                        'padding-right': 10,
+                                    },
+                                ),
+
+                                html.Div(
+                                    id='div_previous_period_debts_sum_text',
+                                    children=f'задолженность за коммунальные услуги за {CURRENT_MONTH_FROM_DB} '
+                                             f'{CURRENT_YEAR_FROM_DB}',
+                                    style={
+                                        'fontSize': '19px',
+                                        'lineHeight': '1.15em',
+                                        'fontWeight': 'bold',
+                                        'color': 'rgba(13, 31, 62, 0.74)',
+                                        'fontFamily': 'RobotoCondensed-Light',
+                                        'margin': 5,
+                                        'width': '300px',
+                                    },
+                                ),
+                            ],
+                            id='div_jd_icon',
+                            style={
+                                'height': '63px',
+                                'display': 'flex',
+                                'justify-content': 'left',
                             },
                         ),
                     ],
-                    style={
-                        'height': '73px',
-                        'margin-left': 35,
-                        'display': 'flex',
-                        'justify-content': 'left',
-                    },
-                ),
-
-                html.Div(
-                    id='back_to_map',
+                    id='div_total_for_russia',
+                    style={'display': 'block'}
                 ),
 
                 html.Div(
@@ -225,7 +258,8 @@ app.layout = html.Div(
                     ),
                     id='div_map',
                     style={
-                        'width': '1200px',
+                        # 'height': '1000px',
+                        # 'width': '1000px',
                         'visibility': 'hidden',
                         'display': 'block',
                     },
@@ -234,44 +268,92 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.Div(
-                            dcc.Dropdown(
-                                id='dropdown_regions',
-                                options=REGIONS,
-                                value=DEFAULT_REGION,
-                            ),
-                            id='div_regions_list',
+                            [
+                                html.Span(
+                                    children='Выбрать период:',
+                                    style={
+                                        'padding-right': 20,
+                                        'fontSize': '16px',
+                                        'fontFamily': 'RobotoCondensed-Light',
+                                        'lineHeight': '1.3em',
+                                        'fontWeight': 'bold',
+                                        'color': 'black',
+                                    },
+                                ),
+
+                                html.Div(
+                                    [
+                                        html.Div(
+                                            dcc.Dropdown(
+                                                id='dropdown_years',
+                                                options=[
+                                                    {'label': x, 'value': x} for x in ALL_YEARS_FROM_DB
+                                                ],
+                                                value=CURRENT_YEAR_FROM_DB,
+                                                clearable=False,
+                                            ),
+                                            style={
+                                                'width': '200px',
+                                                'margin-bottom': 5,
+                                            },
+                                        ),
+
+                                        html.Div(
+                                            dcc.Dropdown(
+                                                id='dropdown_months',
+                                                options=[
+                                                    {'label': x, 'value': x} for x in list(calendar.month_name) if x
+                                                ],
+                                                value=CURRENT_MONTH_FROM_DB.title(),
+                                                clearable=False,
+                                            ),
+                                            style={
+                                                'width': '200px',
+                                                'margin-bottom': 5,
+                                            },
+                                        ),
+                                    ],
+                                    id='div_period_dropdowns',
+                                    style={
+                                        'display': 'block',
+                                    },
+                                ),
+                            ],
                             style={
-                                'width': '300px',
-                                'margin-left': 20,
-                                'margin-bottom': 5,
+                                'display': 'flex',
+                                'justify-content': 'left',
+                                'alignItems': 'center',
+                                'width': 400,
+                                'height': 100,
+                                'padding-right': 20,
                             },
                         ),
 
                         html.Div(
                             [
                                 html.Span(
-                                    children='Отображать на карте статистику:',
+                                    children='Отображать статистику:',
                                     style={
-                                        'fontSize': '15px',
+                                        'fontSize': '16px',
                                         'lineHeight': '1.3em',
                                         'fontWeight': 'bold',
                                         'color': 'black',
                                         'fontFamily': 'RobotoCondensed-Light',
-                                        'margin': 10,
+                                        'alignItems': 'center',
                                     },
                                 ),
 
                                 dcc.RadioItems(
                                     id='radio_items',
                                     options={
-                                        'accounts_count': 'по лицевым счетам',
-                                        'payment_documents_count': 'по платежным документам',
-                                        'charges_sum': 'по начислениям',
+                                        'charged_sum': 'по начислениям',
+                                        'already_payed_sum': 'по оплате',
+                                        'previous_period_debts_sum': 'по задолженности',
                                     },
                                     value=DEFAULT_RADIO_ITEM,
                                     style={
-                                        'width': '300px',
-                                        'fontSize': '12px',
+                                        'width': '250px',
+                                        'fontSize': '14px',
                                         'color': 'black',
                                     },
                                 ),
@@ -280,52 +362,87 @@ app.layout = html.Div(
                             style={
                                 'display': 'flex',
                                 'justify-content': 'left',
-                                'width': 500,
-                                'height': 100,
-                                'margin-left': 20,
-                                'margin-bottom': 20,
-                                'borderWidth': 2,
-                                'borderColor': 'rgb(186, 227, 242)',
-                                'borderStyle': 'solid',
                                 'alignItems': 'center',
+                                'height': 100,
+                            },
+                        ),
+
+                        html.Button(
+                            children='Обновить данные на карте',
+                            id='update_map_data',
+                            n_clicks=0,
+                            style={
+                                'fontFamily': 'RobotoCondensed-Light',
+                                'margin-right': 20,
+                            },
+                        ),
+
+                        html.Div(
+                            dcc.Dropdown(
+                                id='dropdown_regions',
+                                options=REGIONS,
+                                value=DEFAULT_REGION,
+                                clearable=False,
+                            ),
+                            id='div_regions_list',
+                            style={
+                                'width': '300px',
+                                'margin-bottom': 5,
                             },
                         ),
                     ],
+                    id='div_statistic_settings',
                     style={
                         'display': 'flex',
                         'justify-content': 'left',
+                        'borderWidth': 2,
+                        'borderColor': 'rgb(186, 227, 242)',
+                        'borderStyle': 'solid',
+                        'alignItems': 'center',
+                        'padding': 10,
+                        'height': 100,
                     },
                 ),
 
-                html.H3(
-                    id='label_statistic_for_region',
-                    children='Статистика по региону:',
-                ),
-
                 html.Div(
+                    [
+                        html.H3(
+                            id='label_statistic_for_region',
+                            children='Статистика по региону:',
+                        ),
+
+                        html.Div(
+                            id='div_table_statistic_for_region',
+                        ),
+                    ],
                     id='div_statistic_for_region',
                     style={
-                        'margin': 20,
+                        'display': 'none',
                     },
                 ),
 
-                html.H3(
-                    id='label_statistics_on_provider_of_region',
-                    children='Статистика по поставщикам региона (ТОП 10):',
-                ),
-
-                html.Div(
-                    id='div_statistics_on_provider_of_region',
-                    style={
-                        'margin': 20,
-                    },
-                ),
+                # html.Div(
+                #     [
+                #         html.H3(
+                #             id='label_statistics_on_provider_of_region',
+                #             children='Статистика по региону:',
+                #         ),
+                #
+                #         html.Div(
+                #             id='div_table_statistics_on_provider_of_region',
+                #         ),
+                #     ],
+                #     id='div_statistics_on_provider_of_region',
+                #     style={
+                #         'display': 'none',
+                #     },
+                # ),
             ],
         ),
     ],
     style={
         'position': 'relative',
-        'maxWidth': '1170px',
+        'maxWidth': '1200px',
         'margin-right': 'auto',
         'margin-left': 'auto',
     },
@@ -334,23 +451,77 @@ app.layout = html.Div(
 
 @app.callback(
     [
+        Output(component_id='map_alert', component_property='children'),
         Output(component_id='map', component_property='figure'),
         Output(component_id='div_map', component_property='style'),
+        Output(component_id='span_charged_sum', component_property='children'),
+        Output(component_id='span_already_payed_sum', component_property='children'),
+        Output(component_id='span_previous_period_debts_sum', component_property='children'),
+        Output(component_id='span_charged_sum_text', component_property='children'),
+        Output(component_id='span_already_payed_sum_text', component_property='children'),
+        Output(component_id='div_previous_period_debts_sum_text', component_property='children'),
     ],
-    Input(component_id='radio_items', component_property='value'),
+    [
+        Input(component_id='update_map_data', component_property='n_clicks'),
+    ],
+    [
+        State(component_id='radio_items', component_property='value'),
+        State(component_id='dropdown_years', component_property='value'),
+        State(component_id='dropdown_months', component_property='value'),
+    ],
 )
-def display_map(value: str) -> tuple[Figure, dict[str, str]]:
+def display_map(click: int, value: str, year: int, month: str):
+    # fixme
+    # -> tuple[Figure, dict[str, str]]:
+    month_int: int = convert_month_from_dashboard_to_int(month=month)
+
+    if month_int > CURRENT_MONTH_FROM_DB_INT and year == CURRENT_YEAR_FROM_DB:
+        month: str = CURRENT_MONTH_FROM_DB
+        df_grouped_by_regions: pd.DataFrame = get_df_with_filter(df=df_all, year=year, month=CURRENT_MONTH_FROM_DB_INT)
+        color_alert: str = 'danger'
+        # fixme
+        text_alert: str = f'Select correct month, example {month}'
+        style_alert: dict[str, str] = {'visibility': 'visible'}
+    else:
+        month: str = month.lower()
+        df_grouped_by_regions: pd.DataFrame = get_df_with_filter(df=df_all, year=year, month=month_int)
+        color_alert: str = 'success'
+        text_alert: str = ''
+        style_alert: dict[str, str] = {'visibility': 'hidden'}
+
+    fig = get_figure(df_grouped_by_regions=df_grouped_by_regions, value=value)
+
+    return (
+        Alert(
+            children=text_alert,
+            color=color_alert,
+            dismissable=True,
+            style=style_alert,
+        ),
+        fig,
+        {'visibility': 'visible'},
+        get_total_integer(df=df_grouped_by_regions, field_name='charged_sum'),
+        get_total_integer(df=df_grouped_by_regions, field_name='already_payed_sum'),
+        get_total_integer(df=df_grouped_by_regions, field_name='previous_period_debts_sum'),
+        f'начислено за {month} {year}',
+        f'оплачено за {month} {year}',
+        f'задолженность за коммунальные услуги за {month} {year}',
+    )
+
+
+def get_figure(df_grouped_by_regions: pd.DataFrame, value: str):
+    # fixme ->
     fig = px.choropleth_mapbox(
         data_frame=df_grouped_by_regions,
-        geojson=get_geodata(),
-        locations=df_grouped_by_regions.id,
+        geojson=geodata,
+        locations=df_grouped_by_regions.region_code,
         color=value,
-        hover_name=df_grouped_by_regions.region,
+        hover_name=df_grouped_by_regions.region_name,
         hover_data={
-            'id': False,
-            'accounts_count': True,
-            'payment_documents_count': True,
-            'charges_sum': True
+            'region_code': False,
+            'charged_sum': True,
+            'already_payed_sum': True,
+            'previous_period_debts_sum': True
         },
         color_continuous_scale=[
             (0, 'rgb(186, 227, 242)'), (0.00001, 'rgb(186, 227, 242)'),
@@ -362,146 +533,167 @@ def display_map(value: str) -> tuple[Figure, dict[str, str]]:
         featureidkey='properties.cartodb_id',
         mapbox_style='white-bg',
         zoom=1.9,
-        center={'lat': 68, 'lon': 105},
+        center={'lat': 69, 'lon': 105},
         labels={
-            'accounts_count': '',
-            'payment_documents_count': '',
-            'charges_sum': '',
+            'charged_sum': '',
+            'already_payed_sum': '',
+            'previous_period_debts_sum': '',
         },
         custom_data=[
-            df_grouped_by_regions['id'],
-            df_grouped_by_regions['region'],
-            df_grouped_by_regions['accounts_count'],
-            df_grouped_by_regions['payment_documents_count'],
-            df_grouped_by_regions['charges_sum'],
+            df_grouped_by_regions['region_code'],
+            df_grouped_by_regions['region_name'],
+            df_grouped_by_regions['charged_sum'],
+            df_grouped_by_regions['already_payed_sum'],
+            df_grouped_by_regions['previous_period_debts_sum'],
         ],
     )
-
-    hovertemp = '<b>%{customdata[1]}</b><br><br><b>%{customdata[2]}</b> - Количество актуальных ЛС<br>'
-    # fixme month
-    hovertemp += '<br><b>%{customdata[3]}</b> - Количество платежных документов, размещенных в мае<br>'
-    # fixme month
-    hovertemp += '<br><b>%{customdata[4]:.0f}</b> - Начислено за КУ в мае<br>'
-
+    hovertemp = '<b>%{customdata[1]}</b><br>'
+    hovertemp += '<br><b>%{customdata[2]}</b> - Начислено<br>'
+    hovertemp += '<br><b>%{customdata[3]}</b> - Оплачено<br>'
+    hovertemp += '<br><b>%{customdata[4]:.0f}</b> - Задолженность<br>'
     fig.update_traces(
         hovertemplate=hovertemp,
         marker_line_width=1,
         marker_line_color='white',
     )
-
     fig.update_layout(
-        height=760,
+        height=730,
         hoverlabel={
             'bgcolor': 'white',
-            'font_size': 18,
+            'bordercolor': '#dee2e6',
+            'font_size': 16,
+            'font_family': 'Helvetica',
+            'align': 'left',
         },
+        hoverlabel_font_color='black',
     )
-    return fig, {'visibility': 'visible'}
+    return fig
 
 
-@app.callback(
-    [
-        Output(component_id='div_statistic_for_region', component_property='children'),
-        Output(component_id='div_statistics_on_provider_of_region', component_property='children'),
-        Output(component_id='dropdown_regions', component_property='value'),
-    ],
-    Input(component_id='map', component_property='hoverData'),
-)
-def update_tables_with_statistics_by_region(hoverData: t.Optional[dict[str, list]]) -> tuple[Table, Table, str]:
-    region: str = DEFAULT_REGION if hoverData is None else hoverData['points'][0]['hovertext']
-
-    return Table(
-        id='table_statistic_for_region',
-        data=get_region_data(region=region, df=df),
-        page_size=10,
-    ), Table(
-        id='table_statistics_on_provider_of_region',
-        data=get_organizations_by_region(region=region, df=df),
-        page_size=10,
-    ), region
-
-
-@app.callback(
-    [
-        Output(component_id='div_map', component_property='style', allow_duplicate=True),
-        Output(component_id='div_radio_items', component_property='style', allow_duplicate=True),
-        Output(component_id='back_to_map', component_property='children', allow_duplicate=True),
-        Output(component_id='back_to_map', component_property='style', allow_duplicate=True)
-    ],
-    Input(component_id='map', component_property='clickData'),
-    prevent_initial_call=True
-)
-def hide_map(clickData) -> tuple[dict, dict, html.Button, dict]:
-    if clickData is not None:
-        return (
-            {'display': 'none'},
-            {'display': 'none'},
-            html.Button(
-                children='Вернуться на карту',
-                id='button_back_to_map',
-                n_clicks=0,
-                style={'fontFamily': 'RobotoCondensed-Light'},
-            ),
-            {
-                'display': 'block',
-                'margin': 20,
-            },
-        )
-
-
-@app.callback(
-    [
-        Output(component_id='div_map', component_property='style', allow_duplicate=True),
-        Output(component_id='div_radio_items', component_property='style', allow_duplicate=True),
-        Output(component_id='back_to_map', component_property='style', allow_duplicate=True),
-    ],
-    Input(component_id='back_to_map', component_property='n_clicks'),
-    prevent_initial_call=True,
-)
-def back_to_map(n_clicks: int) -> tuple[dict[str, t.Any], dict[str, t.Any], dict[str, t.Any]]:
-    return (
-        {'display': 'block'},
-        {
-            'display': 'flex',
-            'justify-content': 'left',
-            'width': 500,
-            'height': 100,
-            'margin-left': 20,
-            'margin-bottom': 20,
-            'borderWidth': 2,
-            'borderColor': 'rgb(186, 227, 242)',
-            'borderStyle': 'solid',
-            'alignItems': 'center',
-        },
-        {'display': 'none'},
-    )
-
-
-@app.callback(
-    [
-        Output(component_id='div_statistic_for_region', component_property='children', allow_duplicate=True),
-        Output(component_id='div_statistics_on_provider_of_region', component_property='children',
-               allow_duplicate=True),
-    ],
-    Input(component_id='dropdown_regions', component_property='value'),
-    prevent_initial_call=True,
-)
-def update_tables_with_statistics_by_region_(value: t.Optional[str]) -> tuple[Table, Table]:
-    region: str = DEFAULT_REGION if value is None else value
-
-    return Table(
-        id='table_statistic_for_region',
-        data=get_region_data(region=region, df=df),
-        page_size=10,
-    ), Table(
-        id='table_statistics_on_provider_of_region',
-        data=get_organizations_by_region(region=region, df=df),
-        page_size=10,
-    )
+#
+# @app.callback(
+#     [
+#         Output(component_id='back_to_map', component_property='children', allow_duplicate=True),
+#         Output(component_id='back_to_map', component_property='style', allow_duplicate=True),
+#         Output(component_id='div_table_statistic_for_region', component_property='children', allow_duplicate=True),
+#         # Output(component_id='div_table_statistics_on_provider_of_region', component_property='children', allow_duplicate=True),
+#         Output(component_id='div_map', component_property='style', allow_duplicate=True),
+#         Output(component_id='div_statistic_settings', component_property='style', allow_duplicate=True),
+#         Output(component_id='div_total_for_russia', component_property='style', allow_duplicate=True),
+#         # Output(component_id='div_statistics_on_provider_of_region', component_property='style', allow_duplicate=True),
+#         Output(component_id='div_statistic_for_region', component_property='style', allow_duplicate=True),
+#     ],
+#     Input(component_id='map', component_property='clickData'),
+#     prevent_initial_call=True,
+# )
+# # fixme name
+# def hide_map(clickData: dict[str, list[dict[str, t.Any]]]) -> tuple[
+#     html.Button, dict[str, str], DataTable, dict[str, str], dict[str, str],
+#     dict[str, str], dict[str, str],
+# ]:
+#     if clickData is not None:
+#         region = clickData['points'][0]['hovertext']
+#
+#         return (
+#             html.Button(
+#                 children='Вернуться на карту',
+#                 id='button_back_to_map',
+#                 n_clicks=0,
+#                 style={'fontFamily': 'RobotoCondensed-Light'},
+#             ),
+#             {'display': 'block'},
+#             DataTable(
+#                 id='table_statistic_for_region',
+#                 data=get_region_data(region=region, df=df),
+#                 page_size=10,
+#                 style_header=DATATABLE_HEADER_STYLE,
+#                 style_data=DATATABLE_DATA_STYLE,
+#             ),
+#             {'display': 'none'},
+#             {'display': 'none'},
+#             {'display': 'none'},
+#             {'display': 'block'},
+#             # {'display': 'block'},
+#         )
+#
+#
+# @app.callback(
+#     [
+#         Output(component_id='back_to_map', component_property='children', allow_duplicate=True),
+#         Output(component_id='back_to_map', component_property='style', allow_duplicate=True),
+#         Output(component_id='div_table_statistic_for_region', component_property='children', allow_duplicate=True),
+#         # Output(component_id='div_table_statistics_on_provider_of_region', component_property='children', allow_duplicate=True),
+#         Output(component_id='div_map', component_property='style', allow_duplicate=True),
+#         Output(component_id='div_statistic_settings', component_property='style', allow_duplicate=True),
+#         Output(component_id='div_total_for_russia', component_property='style', allow_duplicate=True),
+#         # Output(component_id='div_statistics_on_provider_of_region', component_property='style', allow_duplicate=True),
+#         Output(component_id='div_statistic_for_region', component_property='style', allow_duplicate=True),
+#     ],
+#     Input(component_id='dropdown_regions', component_property='value'),
+#     prevent_initial_call=True,
+# )
+# def hide_map(value: str) -> tuple[
+#     html.Button, dict[str, str], DataTable, dict[str, str], dict[str, str],
+#     dict[str, str], dict[str, str],
+# ]:
+#     return (
+#         html.Button(
+#             children='Вернуться на карту',
+#             id='button_back_to_map',
+#             n_clicks=0,
+#             style={'fontFamily': 'RobotoCondensed-Light'},
+#         ),
+#         {'display': 'block'},
+#         DataTable(
+#             id='table_statistic_for_region',
+#             data=get_region_data(region=value, df=df),
+#             page_size=10,
+#             style_header=DATATABLE_HEADER_STYLE,
+#             style_data=DATATABLE_DATA_STYLE,
+#         ),
+#
+#         {'display': 'none'},
+#         {'display': 'none'},
+#         {'display': 'none'},
+#         {'display': 'block'},
+#     )
+#
+#
+# @app.callback(
+#     [
+#         Output(component_id='back_to_map', component_property='style', allow_duplicate=True),
+#         Output(component_id='div_map', component_property='style', allow_duplicate=True),
+#         Output(component_id='div_statistic_settings', component_property='style', allow_duplicate=True),
+#         Output(component_id='div_total_for_russia', component_property='style', allow_duplicate=True),
+#         # Output(component_id='div_statistics_on_provider_of_region', component_property='style', allow_duplicate=True),
+#         Output(component_id='div_statistic_for_region', component_property='style', allow_duplicate=True),
+#     ],
+#     Input(component_id='back_to_map', component_property='n_clicks'),
+#     prevent_initial_call=True,
+# )
+# def back_to_map(n_clicks: int) -> tuple[
+#     dict[str, str], dict[str, str], dict[str, t.Any],
+#     dict[str, str], dict[str, str]
+# ]:
+#     return (
+#         {'display': 'none'},
+#         {'display': 'block'},
+#         {
+#             'display': 'flex',
+#             'justify-content': 'left',
+#             'borderWidth': 2,
+#             'borderColor': 'rgb(186, 227, 242)',
+#             'borderStyle': 'solid',
+#             'alignItems': 'center',
+#             'padding': 10,
+#             'height': 100,
+#         },
+#         {'display': 'block'},
+#         {'display': 'none'},
+#         # {'display': 'none'},
+#     )
 
 
 if __name__ == '__main__':
-    df: pd.DataFrame = get_df()
-    df_grouped_by_regions: pd.DataFrame = get_df_grouped_by_regions(df=df)
-
+    geodata: geojson.FeatureCollection = get_geodata()
     app.run(debug=True)

@@ -166,3 +166,4 @@ cython_debug/
 *.geojson
 *.xlsx
 *.sqlite
+secrets.py
