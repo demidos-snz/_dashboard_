@@ -1,11 +1,13 @@
 import calendar
 import locale
+import os
 import typing as t
 
 import pandas as pd
 
 locale.setlocale(locale.LC_TIME, 'ru_RU')
 
+TITLE_APP: str = 'Мониторинг отрасли ЖКХ'
 
 DEFAULT_REGION: str = ''
 REGIONS: tuple[str, ...] = (
@@ -108,9 +110,9 @@ RADIO_ITEMS: dict[str, str] = {
 }
 DEFAULT_RADIO_ITEM: str = 'charged_sum'
 
-ORG_ICON_PATH: str = 'assets/icons/org-icon.png'
-MKD_ICON_PATH: str = 'assets/icons/mkd-icon.png'
-JD_ICON_PATH: str = 'assets/icons/jd-icon.png'
+ORG_ICON_PATH: str = os.path.normpath('assets/icons/org-icon.png')
+MKD_ICON_PATH: str = os.path.normpath('assets/icons/mkd-icon.png')
+JD_ICON_PATH: str = os.path.normpath('assets/icons/jd-icon.png')
 
 NEW_TER: pd.DataFrame = pd.DataFrame(
     data={
@@ -133,11 +135,11 @@ BUTTON_STYLE: dict[str, t.Any] = {
     'fontFamily': 'RobotoCondensed-Light',
     'margin-right': 20,
     'display': 'inline-block',
-    'height': '38px',
+    'height': '36px',
     'color': '#555',
     'textAlign': 'center',
     'font-size': '11px',
-    'line-height': '38px',
+    'line-height': '37px',
     'letterSpacing': '.1rem',
     'text-transform': 'uppercase',
     'font-weight': 'bold',

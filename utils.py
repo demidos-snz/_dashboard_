@@ -13,7 +13,7 @@ from dash import html
 from settings import BUTTON_STYLE
 
 
-def get_total_integer(df: pd.DataFrame, field_name: str) -> str:
+def get_cpd_total_integer(df: pd.DataFrame, field_name: str) -> str:
     total_sum: float = round(df[field_name].sum())
     return '{:,}'.format(total_sum).replace(',', ' ')
 
@@ -103,9 +103,15 @@ def get_figure1(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
     )
     fig.update_layout(
         title='Динамика начислений за ЖКУ, руб.',
+        title_x=0.5,
         hovermode='x unified',
         width=600,
         height=500,
+        hoverlabel={
+            'bordercolor': 'white',
+            'font_family': 'Helvetica',
+            'font_size': 16,
+        },
     )
 
     return fig
@@ -117,7 +123,6 @@ def get_figure2(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
         x=x_axis,
         y=df['already_payed_sum_x'],
         color=px.Constant('2022 год'),
-        # labels=dict(x='Месяц', y='Сумма оплат, в руб', color='Год'),
         labels=dict(x='', y='', color='Год'),
     )
 
@@ -134,9 +139,15 @@ def get_figure2(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
     )
     fig.update_layout(
         title='Динамика оплат за ЖКУ, руб.',
+        title_x=0.5,
         hovermode='x unified',
         width=600,
         height=500,
+        hoverlabel={
+            'bordercolor': 'white',
+            'font_family': 'Helvetica',
+            'font_size': 16,
+        },
     )
 
     return fig
@@ -152,7 +163,7 @@ def get_figure3(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
             name='Сумма начислений',
             marker={'color': 'rgb(173, 211, 100)'},
             width=0.2,
-            hovertemplate='<br>'.join(['Начислено %{y}']),
+            hovertemplate='<br>'.join(['%{y}']),
         ),
     )
     fig.add_trace(
@@ -162,7 +173,7 @@ def get_figure3(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
             name='Сумма оплат',
             marker={'color': 'rgb(253, 211, 17)'},
             width=0.2,
-            hovertemplate='<br>'.join(['Оплачено %{y}']),
+            hovertemplate='<br>'.join(['%{y}']),
         ),
     )
     fig.add_trace(
@@ -172,13 +183,19 @@ def get_figure3(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
             name='Дебиторская задолженность',
             marker={'color': 'rgb(239, 75, 46)'},
             width=0.2,
-            hovertemplate='<br>'.join(['Дебиторская задолженность %{y}']),
+            hovertemplate='<br>'.join(['%{y}']),
         ),
     )
     fig.update_layout(
-        title='Динамика начислений, оплат и задолженности за ЖКУ, руб.',
+        title='Динамика начислений, оплат и задолженности за ЖКУ в 2023 году, руб.',
+        title_x=0.1,
         barmode='group',
         hovermode='x unified',
+        hoverlabel={
+            'bordercolor': 'white',
+            'font_family': 'Helvetica',
+            'font_size': 16,
+        },
     )
 
     return fig

@@ -15,7 +15,7 @@ from settings import (
     ORG_ICON_PATH, MKD_ICON_PATH, JD_ICON_PATH, MONTHS, BUTTON_STYLE,
 )
 from utils import (
-    get_geodata, b64_image, get_total_integer,
+    get_geodata, b64_image, get_cpd_total_integer,
     get_current_month_from_db, get_current_year_from_db, get_all_years_from_db,
     convert_month_from_dashboard_to_int, get_current_month_from_db_int, ggg, make_human_readable_data,
 )
@@ -39,16 +39,19 @@ df_grouped_by_regions_default: pd.DataFrame = df_with_filter(
 
 client.disconnect()
 
+geodata: geojson.FeatureCollection = get_geodata()
+
 app = Dash(
     name=__name__,
     external_stylesheets=[dbc.themes.BOOTSTRAP],
+    title=TITLE_APP,
 )
 
 app.layout = html.Div(
     children=[
         dbc.Modal(
             [
-                dbc.ModalHeader(dbc.ModalTitle('Ошибка!'), close_button=True),
+                dbc.ModalHeader(dbc.ModalTitle('Предупреждение!'), close_button=True),
                 dbc.ModalBody(children='Данные за выбранный период отсутствуют!'),
             ],
             id='modal_backdrop',
@@ -95,7 +98,7 @@ app.layout = html.Div(
 
                                 html.Span(
                                     id='span_charged_sum',
-                                    children=get_total_integer(
+                                    children=get_cpd_total_integer(
                                         df=df_grouped_by_regions_default,
                                         field_name='charged_sum',
                                     ),
@@ -140,7 +143,7 @@ app.layout = html.Div(
 
                                 html.Span(
                                     id='span_already_payed_sum',
-                                    children=get_total_integer(
+                                    children=get_cpd_total_integer(
                                         df=df_grouped_by_regions_default,
                                         field_name='already_payed_sum',
                                     ),
@@ -186,7 +189,7 @@ app.layout = html.Div(
 
                                 html.Span(
                                     id='span_previous_period_debts_sum',
-                                    children=get_total_integer(
+                                    children=get_cpd_total_integer(
                                         df=df_grouped_by_regions_default,
                                         field_name='previous_period_debts_sum',
                                     ),
@@ -226,6 +229,20 @@ app.layout = html.Div(
                 ),
 
                 html.Div(
+                    dcc.Dropdown(
+                        id='dropdown_regions',
+                        options=REGIONS,
+                        value=DEFAULT_DROPDOWN_REGIONS_VALUE,
+                        clearable=False,
+                        placeholder=DEFAULT_DROPDOWN_REGIONS_PLACEHOLDER,
+                    ),
+                    id='div_regions_list',
+                    style={
+                        'width': '300px',
+                    },
+                ),
+
+                html.Div(
                     dcc.Graph(
                         id='map',
                         config={
@@ -253,6 +270,7 @@ app.layout = html.Div(
                                         'lineHeight': '1.3em',
                                         'fontWeight': 'bold',
                                         'color': 'black',
+                                        'margin-left': '80px',
                                     },
                                 ),
 
@@ -268,7 +286,7 @@ app.layout = html.Div(
                                                 clearable=False,
                                             ),
                                             style={
-                                                'width': '200px',
+                                                'width': '250px',
                                                 'margin-bottom': 5,
                                             },
                                         ),
@@ -283,7 +301,7 @@ app.layout = html.Div(
                                                 clearable=False,
                                             ),
                                             style={
-                                                'width': '200px',
+                                                'width': '250px',
                                                 'margin-bottom': 5,
                                             },
                                         ),
@@ -298,9 +316,8 @@ app.layout = html.Div(
                                 'display': 'flex',
                                 'justify-content': 'left',
                                 'alignItems': 'center',
-                                'width': 400,
                                 'height': 100,
-                                'padding-right': 20,
+                                'margin-right': 50,
                             },
                         ),
 
@@ -310,6 +327,7 @@ app.layout = html.Div(
                                     children='Отображать статистику:',
                                     style={
                                         'fontSize': '16px',
+                                        'margin-right': '20px',
                                         'lineHeight': '1.3em',
                                         'fontWeight': 'bold',
                                         'color': 'black',
@@ -327,7 +345,7 @@ app.layout = html.Div(
                                     },
                                     value=DEFAULT_RADIO_ITEM,
                                     style={
-                                        'width': '210px',
+                                        'width': '200px',
                                         'fontSize': '14px',
                                         'color': 'black',
                                     },
@@ -348,20 +366,6 @@ app.layout = html.Div(
                             n_clicks=0,
                             style=BUTTON_STYLE,
                         ),
-
-                        html.Div(
-                            dcc.Dropdown(
-                                id='dropdown_regions',
-                                options=REGIONS,
-                                value=DEFAULT_REGION,
-                                clearable=False,
-                                placeholder='Выберите регион:',
-                            ),
-                            id='div_regions_list',
-                            style={
-                                'width': '300px',
-                            },
-                        ),
                     ],
                     id='div_statistic_settings',
                     style={
@@ -371,7 +375,6 @@ app.layout = html.Div(
                         'borderColor': 'rgb(186, 227, 242)',
                         'borderStyle': 'solid',
                         'alignItems': 'center',
-                        'padding': 10,
                         'height': 100,
                     },
                 ),
@@ -396,6 +399,7 @@ app.layout = html.Div(
                             id='div_charges_sum',
                             style={
                                 'display': 'none',
+                                'textAlign': 'center',
                             },
                         ),
 
@@ -503,9 +507,9 @@ def display_map(click: int, value: str, year: int, month: str, ip_open: bool) ->
         ip_open,
         fig,
         {'visibility': 'visible'},
-        get_total_integer(df=df_grouped_by_regions, field_name='charged_sum'),
-        get_total_integer(df=df_grouped_by_regions, field_name='already_payed_sum'),
-        get_total_integer(df=df_grouped_by_regions, field_name='previous_period_debts_sum'),
+        get_cpd_total_integer(df=df_grouped_by_regions, field_name='cpd_charged_sum'),
+        get_cpd_total_integer(df=df_grouped_by_regions, field_name='cpd_already_payed_sum'),
+        get_cpd_total_integer(df=df_grouped_by_regions, field_name='cpd_previous_period_debts_sum'),
         f'начислено за {month} {year}',
         f'оплачено за {month} {year}',
         f'дебиторская задолженность за {month} {year}',
@@ -689,6 +693,4 @@ def back_to_map(n_clicks: int) -> tuple[
 
 
 if __name__ == '__main__':
-    geodata: geojson.FeatureCollection = get_geodata()
-
     app.run(debug=True)
