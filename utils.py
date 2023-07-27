@@ -42,10 +42,16 @@ def make_human_readable_data(column: pd.Series) -> list[str]:
 
 # fixme naming + args df
 def ggg(df: pd.DataFrame, region: str, x_axis: tuple[str]) -> tuple[
-    html.Button, dict[str, str], dict[str, str],
-    dict[str, str],  dict[str, str], go.Figure,
-    dict[str, str], go.Figure, dict[str, str],
-    go.Figure, dict[str, str], str, dict[str, str]
+    html.Button, dict[str, str],
+    dict[str, str], dict[str, str],  dict[str, str],
+    go.Figure, dict[str, str],
+    go.Figure, dict[str, str],
+    go.Figure, dict[str, str],
+    dict[str, str],
+    # go.Figure, dict[str, str],
+    # go.Figure, dict[str, str],
+    dict[str, str], str, dict[str, str],
+    str, str, str,
 ]:
     df_2022 = df[(df['year'] == 2022) & (df['region_name'] == region)]
     df_2023 = df[(df['year'] == 2023) & (df['region_name'] == region)]
