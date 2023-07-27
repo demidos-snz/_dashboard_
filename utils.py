@@ -54,6 +54,26 @@ def ggg(df: pd.DataFrame, region: str, x_axis: tuple[str]) -> tuple[
     fig1 = get_figure1(df=df, x_axis=x_axis)
     fig2 = get_figure2(df=df, x_axis=x_axis)
     fig3 = get_figure3(df=df, x_axis=x_axis)
+    # fig4 = get_figure4(df=df, x_axis=x_axis)
+    # fig5 = get_figure5(df=df, x_axis=x_axis)
+
+    span_cr_charged_sum_value: str = get_cr_total_integer(
+        df=df,
+        field_name='cr_total_accured_contib_sum_y',
+        region=region,
+    )
+
+    span_cr_payed_sum: str = get_cr_total_integer(
+        df=df,
+        field_name='cr_total_paid_contib_sum_y',
+        region=region,
+    )
+
+    span_cr_debts_sum: str = get_cr_total_integer(
+        df=df,
+        field_name='cr_debt_sum_y',
+        region=region,
+    )
 
     return (
         html.Button(
@@ -74,13 +94,22 @@ def ggg(df: pd.DataFrame, region: str, x_axis: tuple[str]) -> tuple[
         {'display': 'block'},
         fig3,
         {'display': 'block'},
-
+        {'display': 'block'},
+        # fig4,
+        # {'display': 'block'},
+        # fig5,
+        # {'display': 'block'},
+        {'display': 'none'},
         region,
         {
             'display': 'block',
             'textAlign': 'center',
             'margin-bottom': 20,
         },
+
+        span_cr_charged_sum_value,
+        span_cr_payed_sum,
+        span_cr_debts_sum,
     )
 
 

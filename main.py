@@ -439,15 +439,158 @@ app.layout = html.Div(
                     },
                 ),
 
+                # html.Div(
+                #     [
+                #         html.Div(
+                #             dcc.Graph(
+                #                 id='graph_cr_charges_sum',
+                #                 config={
+                #                     'scrollZoom': False,
+                #                     'displayModeBar': False,
+                #                 },
+                #             ),
+                #             id='div_cr_charges_sum',
+                #             style={
+                #                 'display': 'none',
+                #                 'textAlign': 'center',
+                #             },
+                #         ),
+                #
+                #         html.Div(
+                #             dcc.Graph(
+                #                 id='graph_cr_payed_sum',
+                #                 config={
+                #                     'scrollZoom': False,
+                #                     'displayModeBar': False,
+                #                 },
+                #             ),
+                #             id='div_cr_payed_sum',
+                #             style={
+                #                 'display': 'none',
+                #             },
+                #         ),
+                #     ],
+                #     style={
+                #         'display': 'flex',
+                #     }
+                # ),
+
                 html.Div(
-                    dcc.Graph(
-                        id='graph_pd_count',
-                        config={
-                            'scrollZoom': False,
-                            'displayModeBar': False,
-                        },
-                    ),
-                    id='div_pd_count',
+                    [
+                        html.H2(
+                            children='Собираемость взносов на счете регионального оператора за 2023 год:',
+                            style={
+                                'fontSize': '19px',
+                                'lineHeight': '1.15em',
+                                'fontWeight': 'bold',
+                                'color': 'rgba(13, 31, 62, 0.74)',
+                                'font-family': 'RobotoCondensed-Light',
+                            },
+                        ),
+
+                        html.Div(
+                            [
+                                html.Span(
+                                    id='span_cr_charged_sum',
+                                    style={
+                                        'textAlign': 'left',
+                                        'fontSize': '50px',
+                                        'lineHeight': '1em',
+                                        'fontWeight': 'bold',
+                                        'color': '#2aa2cf',
+                                        'fontFamily': 'RobotoCondensed-Bold',
+                                        'padding-right': 15,
+                                    },
+                                ),
+
+                                html.Span(
+                                    id='span_cr_charged_sum_text',
+                                    children=f'начислено взносов с начала {CURRENT_YEAR_FROM_DB} года',
+                                    style={
+                                        'fontSize': '19px',
+                                        'lineHeight': '1.15em',
+                                        'fontWeight': 'bold',
+                                        'color': 'rgba(13, 31, 62, 0.74)',
+                                        'fontFamily': 'RobotoCondensed-Light',
+                                    },
+                                ),
+                            ],
+                            id='div_cr_charges_total',
+                            style={
+                                'height': '63px',
+                            },
+                        ),
+
+                        html.Div(
+                            [
+                                html.Span(
+                                    id='span_cr_payed_sum',
+                                    style={
+                                        'textAlign': 'left',
+                                        'fontSize': '50px',
+                                        'lineHeight': '1em',
+                                        'fontWeight': 'bold',
+                                        'color': '#2aa2cf',
+                                        'fontFamily': 'RobotoCondensed-Bold',
+                                        'padding-right': 15,
+                                    },
+                                ),
+
+                                html.Span(
+                                    id='span_cr_payed_sum_text',
+                                    children=f'оплачено взносов с начала {CURRENT_YEAR_FROM_DB} года',
+                                    style={
+                                        'fontSize': '19px',
+                                        'lineHeight': '1.15em',
+                                        'fontWeight': 'bold',
+                                        'color': 'rgba(13, 31, 62, 0.74)',
+                                        'fontFamily': 'RobotoCondensed-Light',
+                                        'padding-right': 15,
+                                    },
+                                ),
+                            ],
+                            id='div_cr_payed_total',
+                            style={
+                                'height': '63px',
+                            },
+                        ),
+
+                        html.Div(
+                            [
+
+                                html.Span(
+                                    id='span_cr_debts_sum',
+                                    style={
+                                        'textAlign': 'left',
+                                        'fontSize': '50px',
+                                        'lineHeight': '1em',
+                                        'fontWeight': 'bold',
+                                        'color': '#2aa2cf',
+                                        'fontFamily': 'RobotoCondensed-Bold',
+                                        'padding-right': 15,
+                                    },
+                                ),
+
+                                html.Span(
+                                    id='div_cr_debts_sum_text',
+                                    children=f'Задолженность по уплате взносов за {CURRENT_YEAR_FROM_DB} год',
+                                    style={
+                                        'fontSize': '19px',
+                                        'lineHeight': '1.15em',
+                                        'fontWeight': 'bold',
+                                        'color': 'rgba(13, 31, 62, 0.74)',
+                                        'fontFamily': 'RobotoCondensed-Light',
+                                        'padding-right': 15,
+                                    },
+                                ),
+                            ],
+                            id='div_cr_debt_total',
+                            style={
+                                'height': '63px',
+                            },
+                        ),
+                    ],
+                    id='div_cr_total_for_russia',
                     style={
                         'display': 'none',
                     },
@@ -597,19 +740,35 @@ def get_map(df: pd.DataFrame, value: str) -> go.Figure:
         Output(component_id='div_already_payed_sum', component_property='style', allow_duplicate=True),
         Output(component_id='graph_debts_sum', component_property='figure', allow_duplicate=True),
         Output(component_id='div_debts_sum', component_property='style', allow_duplicate=True),
+        # Output(component_id='graph_cr_charges_sum', component_property='figure', allow_duplicate=True),
+        # Output(component_id='div_cr_charges_sum', component_property='style', allow_duplicate=True),
+        # Output(component_id='graph_cr_payed_sum', component_property='figure', allow_duplicate=True),
+        # Output(component_id='div_cr_payed_sum', component_property='style', allow_duplicate=True),
+        Output(component_id='div_cr_total_for_russia', component_property='style', allow_duplicate=True),
+
+        Output(component_id='div_regions_list', component_property='style', allow_duplicate=True),
 
         Output(component_id='region_name', component_property='children', allow_duplicate=True),
         Output(component_id='region_name', component_property='style', allow_duplicate=True),
+
+        Output(component_id='span_cr_charged_sum', component_property='children', allow_duplicate=True),
+        Output(component_id='span_cr_payed_sum', component_property='children', allow_duplicate=True),
+        Output(component_id='span_cr_debts_sum', component_property='children', allow_duplicate=True),
     ],
     Input(component_id='map', component_property='clickData'),
     prevent_initial_call=True,
 )
 def hide_map_by_click_map(clickData: dict[str, list[dict[str, t.Any]]]) -> tuple[
-    html.Button, dict[str, str], dict[str, str],
-    dict[str, str], dict[str, str], go.Figure,
-    dict[str, str], go.Figure, dict[str, str],
-    go.Figure, dict[str, str], str,
+    html.Button, dict[str, str],
+    dict[str, str], dict[str, str],  dict[str, str],
+    go.Figure, dict[str, str],
+    go.Figure, dict[str, str],
+    go.Figure, dict[str, str],
     dict[str, str],
+    # go.Figure, dict[str, str],
+    # go.Figure, dict[str, str],
+    dict[str, str], str, dict[str, str],
+    str, str, str,
 ]:
     if clickData is not None:
         region: str = clickData['points'][0]['hovertext']
@@ -632,19 +791,34 @@ def hide_map_by_click_map(clickData: dict[str, list[dict[str, t.Any]]]) -> tuple
         Output(component_id='div_already_payed_sum', component_property='style', allow_duplicate=True),
         Output(component_id='graph_debts_sum', component_property='figure', allow_duplicate=True),
         Output(component_id='div_debts_sum', component_property='style', allow_duplicate=True),
+        # Output(component_id='graph_cr_charges_sum', component_property='figure', allow_duplicate=True),
+        # Output(component_id='div_cr_charges_sum', component_property='style', allow_duplicate=True),
+        # Output(component_id='graph_cr_payed_sum', component_property='figure', allow_duplicate=True),
+        # Output(component_id='div_cr_payed_sum', component_property='style', allow_duplicate=True),
+        Output(component_id='div_cr_total_for_russia', component_property='style', allow_duplicate=True),
+        Output(component_id='div_regions_list', component_property='style', allow_duplicate=True),
 
         Output(component_id='region_name', component_property='children', allow_duplicate=True),
         Output(component_id='region_name', component_property='style', allow_duplicate=True),
+
+        Output(component_id='span_cr_charged_sum', component_property='children', allow_duplicate=True),
+        Output(component_id='span_cr_payed_sum', component_property='children', allow_duplicate=True),
+        Output(component_id='span_cr_debts_sum', component_property='children', allow_duplicate=True),
     ],
     Input(component_id='dropdown_regions', component_property='value'),
     prevent_initial_call=True,
 )
 def hide_map_by_dropdown_region(region: str) -> tuple[
-    html.Button, dict[str, str], dict[str, str],
-    dict[str, str], dict[str, str], go.Figure,
-    dict[str, str], go.Figure, dict[str, str],
-    go.Figure, dict[str, str], str,
+    html.Button, dict[str, str],
+    dict[str, str], dict[str, str],  dict[str, str],
+    go.Figure, dict[str, str],
+    go.Figure, dict[str, str],
+    go.Figure, dict[str, str],
     dict[str, str],
+    # go.Figure, dict[str, str],
+    # go.Figure, dict[str, str],
+    dict[str, str], str, dict[str, str],
+    str, str, str,
 ]:
     return ggg(df=df_all, region=region, x_axis=X_AXIS)
 
@@ -660,6 +834,10 @@ def hide_map_by_dropdown_region(region: str) -> tuple[
         Output(component_id='div_charges_sum', component_property='style', allow_duplicate=True),
         Output(component_id='div_already_payed_sum', component_property='style', allow_duplicate=True),
         Output(component_id='div_debts_sum', component_property='style', allow_duplicate=True),
+        Output(component_id='div_cr_total_for_russia', component_property='style', allow_duplicate=True),
+        # Output(component_id='div_cr_charges_sum', component_property='style', allow_duplicate=True),
+        # Output(component_id='div_cr_payed_sum', component_property='style', allow_duplicate=True),
+        Output(component_id='div_regions_list', component_property='style', allow_duplicate=True),
 
         Output(component_id='region_name', component_property='style', allow_duplicate=True),
     ],
@@ -669,6 +847,8 @@ def hide_map_by_dropdown_region(region: str) -> tuple[
 def back_to_map(n_clicks: int) -> tuple[
     dict[str, str], dict[str, str], dict[str, t.Any],
     dict[str, str], dict[str, str], dict[str, str],
+    dict[str, str], dict[str, str],
+    # dict[str, str], dict[str, str],
     dict[str, str], dict[str, str],
 ]:
     return (
@@ -690,8 +870,17 @@ def back_to_map(n_clicks: int) -> tuple[
         {'display': 'none'},
         {'display': 'none'},
         {'display': 'none'},
-
         {'display': 'none'},
+        # {'display': 'none'},
+        # {'display': 'none'},
+        {
+            'display': 'block',
+            'width': '300px',
+        },
+        {
+            'display': 'none',
+            'width': '300px',
+        },
     )
 
 
