@@ -9,7 +9,8 @@ locale.setlocale(locale.LC_TIME, 'ru_RU')
 
 TITLE_APP: str = 'Мониторинг отрасли ЖКХ'
 
-DEFAULT_REGION: str = ''
+DEFAULT_DROPDOWN_REGIONS_VALUE: str = ''
+DEFAULT_DROPDOWN_REGIONS_PLACEHOLDER: str = 'Российская Федерация'
 REGIONS: tuple[str, ...] = (
     'г. Москва',
     'г. Санкт-Петербург',

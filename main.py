@@ -11,13 +11,16 @@ from dash import Dash, html, dcc, Output, Input, State
 from get_data import df_all_data_from_client, df_with_filter
 from secrets_ import CONNECT_PARAMS
 from settings import (
-    DEFAULT_REGION, REGIONS, DEFAULT_RADIO_ITEM,
-    ORG_ICON_PATH, MKD_ICON_PATH, JD_ICON_PATH, MONTHS, BUTTON_STYLE,
+    DEFAULT_DROPDOWN_REGIONS_VALUE, REGIONS, DEFAULT_RADIO_ITEM,
+    ORG_ICON_PATH, MKD_ICON_PATH, JD_ICON_PATH,
+    MONTHS, BUTTON_STYLE, DEFAULT_DROPDOWN_REGIONS_PLACEHOLDER,
+    TITLE_APP,
 )
 from utils import (
     get_geodata, b64_image, get_cpd_total_integer,
     get_current_month_from_db, get_current_year_from_db, get_all_years_from_db,
-    convert_month_from_dashboard_to_int, get_current_month_from_db_int, ggg, make_human_readable_data,
+    convert_month_from_dashboard_to_int, get_current_month_from_db_int, ggg,
+    make_human_readable_data,
 )
 
 # fixme move later
