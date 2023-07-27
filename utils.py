@@ -88,7 +88,7 @@ def ggg(df: pd.DataFrame, region: str, x_axis: tuple[str]) -> tuple[
 def get_figure1(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
     fig = px.line(
         x=x_axis,
-        y=df['charged_sum_x'],
+        y=df['cpd_charged_sum_x'],
         color=px.Constant('2022 год'),
         # labels=dict(x='Месяц', y='Начисления, в руб', color='Год'),
         labels=dict(x='', y='', color='Год'),
@@ -100,10 +100,10 @@ def get_figure1(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
         hovertemplate='<br>'.join(['Начислено %{y}']),
     )
     # fixme year
-    fig.add_bar(x=x_axis, y=df['charged_sum_y'], name='2023 год')
+    fig.add_bar(x=x_axis, y=df['cpd_charged_sum_y'], name='2023 год')
     fig.update_traces(
         marker_color='rgb(173, 211, 100)',
-        customdata=np.transpose(df['charged_sum_y']),
+        customdata=np.transpose(df['cpd_charged_sum_y']),
         hovertemplate='<br>'.join(['Начислено %{y}']),
     )
     fig.update_layout(
@@ -126,7 +126,7 @@ def get_figure1(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
 def get_figure2(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
     fig = px.line(
         x=x_axis,
-        y=df['already_payed_sum_x'],
+        y=df['cpd_already_payed_sum_x'],
         color=px.Constant('2022 год'),
         labels=dict(x='', y='', color='Год'),
     )
@@ -137,7 +137,7 @@ def get_figure2(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
         hovertemplate='<br>'.join(['Оплачено %{y}']),
     )
     # fixme year
-    fig.add_bar(x=x_axis, y=df['already_payed_sum_y'], name='2023 год')
+    fig.add_bar(x=x_axis, y=df['cpd_already_payed_sum_y'], name='2023 год')
     fig.update_traces(
         marker_color='rgb(173, 211, 100)',
         hovertemplate='<br>'.join(['Оплачено %{y}']),
@@ -164,7 +164,7 @@ def get_figure3(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
     fig.add_trace(
         trace=go.Bar(
             x=x_axis,
-            y=df['charged_sum_y'],
+            y=df['cpd_charged_sum_y'],
             name='Сумма начислений',
             marker={'color': 'rgb(173, 211, 100)'},
             width=0.2,
@@ -174,7 +174,7 @@ def get_figure3(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
     fig.add_trace(
         trace=go.Bar(
             x=x_axis,
-            y=df['already_payed_sum_y'],
+            y=df['cpd_already_payed_sum_y'],
             name='Сумма оплат',
             marker={'color': 'rgb(253, 211, 17)'},
             width=0.2,
@@ -184,7 +184,7 @@ def get_figure3(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
     fig.add_trace(
         trace=go.Bar(
             x=x_axis,
-            y=df['previous_period_debts_sum_y'],
+            y=df['cpd_previous_period_debts_sum_y'],
             name='Дебиторская задолженность',
             marker={'color': 'rgb(239, 75, 46)'},
             width=0.2,
@@ -214,7 +214,7 @@ def get_current_month_from_db(client: Client) -> str:
 def get_current_month_from_db_int(client: Client) -> int:
     for row in client.execute(query="""
     select extract(month from max(report_month)) as month
-    from ois_visual.charges_payed_debts_by_regions t1
+    from ois_visual.stats_by_regions t1
     """):
         return row[0]
 
@@ -222,7 +222,7 @@ def get_current_month_from_db_int(client: Client) -> int:
 def get_all_years_from_db(client: Client) -> list[int]:
     return [tuple_year[0] for tuple_year in client.execute(query="""
     select distinct(extract(year from (report_month))) as year
-    from ois_visual.charges_payed_debts_by_regions t1
+    from ois_visual.stats_by_regions t1
     """)]
 
 

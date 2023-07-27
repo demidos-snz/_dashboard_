@@ -100,7 +100,7 @@ app.layout = html.Div(
                                     id='span_charged_sum',
                                     children=get_cpd_total_integer(
                                         df=df_grouped_by_regions_default,
-                                        field_name='charged_sum',
+                                        field_name='cpd_charged_sum',
                                     ),
                                     style={
                                         'textAlign': 'left',
@@ -145,7 +145,7 @@ app.layout = html.Div(
                                     id='span_already_payed_sum',
                                     children=get_cpd_total_integer(
                                         df=df_grouped_by_regions_default,
-                                        field_name='already_payed_sum',
+                                        field_name='cpd_already_payed_sum',
                                     ),
                                     style={
                                         'textAlign': 'left',
@@ -191,7 +191,7 @@ app.layout = html.Div(
                                     id='span_previous_period_debts_sum',
                                     children=get_cpd_total_integer(
                                         df=df_grouped_by_regions_default,
-                                        field_name='previous_period_debts_sum',
+                                        field_name='cpd_previous_period_debts_sum',
                                     ),
                                     style={
                                         'textAlign': 'left',
@@ -339,9 +339,9 @@ app.layout = html.Div(
                                 dcc.RadioItems(
                                     id='radio_items',
                                     options={
-                                        'charged_sum': '\tпо начислениям',
-                                        'already_payed_sum': '\tпо оплате',
-                                        'previous_period_debts_sum': '\tпо задолженности',
+                                        'cpd_charged_sum': '\tпо начислениям',
+                                        'cpd_already_payed_sum': '\tпо оплате',
+                                        'cpd_previous_period_debts_sum': '\tпо задолженности',
                                     },
                                     value=DEFAULT_RADIO_ITEM,
                                     style={
@@ -527,9 +527,9 @@ def get_map(df: pd.DataFrame, value: str) -> go.Figure:
         hover_name=df.region_name,
         hover_data={
             'region_code': False,
-            'charged_sum': True,
-            'already_payed_sum': True,
-            'previous_period_debts_sum': True,
+            'cpd_charged_sum': True,
+            'cpd_already_payed_sum': True,
+            'cpd_previous_period_debts_sum': True,
         },
         color_continuous_scale=[
             (0, 'rgb(186, 227, 242)'), (0.00001, 'rgb(186, 227, 242)'),
@@ -543,16 +543,16 @@ def get_map(df: pd.DataFrame, value: str) -> go.Figure:
         zoom=1.9,
         center={'lat': 69, 'lon': 105},
         labels={
-            'charged_sum': '',
-            'already_payed_sum': '',
-            'previous_period_debts_sum': '',
+            'cpd_charged_sum': '',
+            'cpd_already_payed_sum': '',
+            'cpd_previous_period_debts_sum': '',
         },
         custom_data=[
             df['region_code'],
             df['region_name'],
-            make_human_readable_data(column=df['charged_sum']),
-            make_human_readable_data(column=df['already_payed_sum']),
-            make_human_readable_data(column=df['previous_period_debts_sum']),
+            make_human_readable_data(column=df['cpd_charged_sum']),
+            make_human_readable_data(column=df['cpd_already_payed_sum']),
+            make_human_readable_data(column=df['cpd_previous_period_debts_sum']),
         ],
     )
     hovertemp: str = '<b>%{customdata[1]}</b><br>'

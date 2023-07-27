@@ -102,13 +102,7 @@ REGIONS: tuple[str, ...] = (
     'Ярославская область',
 )
 
-# fixme delete RADIO_ITEMS
-RADIO_ITEMS: dict[str, str] = {
-    'accounts_count': 'Количество актуальных ЛС',
-    'payment_documents_count': 'Количество размещенных платежных документов',
-    'charges_sum': 'Всего начислено',
-}
-DEFAULT_RADIO_ITEM: str = 'charged_sum'
+DEFAULT_RADIO_ITEM: str = 'cpd_charged_sum'
 
 ORG_ICON_PATH: str = os.path.normpath('assets/icons/org-icon.png')
 MKD_ICON_PATH: str = os.path.normpath('assets/icons/mkd-icon.png')
@@ -123,9 +117,9 @@ NEW_TER: pd.DataFrame = pd.DataFrame(
             'Запорожская область',
             'Херсонская область',
         ],
-        'charged_sum': [0, 0, 0, 0],
-        'already_payed_sum': [0, 0, 0, 0],
-        'previous_period_debts_sum': [0, 0, 0, 0],
+        'cpd_charged_sum': [0, 0, 0, 0],
+        'cpd_already_payed_sum': [0, 0, 0, 0],
+        'cpd_previous_period_debts_sum': [0, 0, 0, 0],
     },
 )
 
