@@ -18,6 +18,11 @@ def get_cpd_total_integer(df: pd.DataFrame, field_name: str) -> str:
     return '{:,}'.format(total_sum).replace(',', ' ')
 
 
+def get_cr_total_integer(df: pd.DataFrame, field_name: str, region: str) -> str:
+    total_sum: float = round(df[field_name][df['region_name'] == region].max())
+    return '{:,}'.format(total_sum).replace(',', ' ')
+
+
 # fixme path
 def get_geodata(path: str = 'result.geojson') -> geojson.FeatureCollection:
     with open(file=path, encoding='utf-8') as f:
