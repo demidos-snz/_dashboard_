@@ -300,7 +300,7 @@ app.layout = html.Div(
                                                 options=[
                                                     {'label': x, 'value': x} for x in MONTHS
                                                 ],
-                                                value=CURRENT_MONTH_FROM_DB.title(),
+                                                value=CURRENT_MONTH_FROM_DB,
                                                 clearable=False,
                                             ),
                                             style={
@@ -660,7 +660,7 @@ def display_map(click: int, value: str, year: int, month: str, ip_open: bool) ->
         f'оплачено за {month} {year}',
         f'дебиторская задолженность за {month} {year}',
         year,
-        month.title(),
+        month,
     )
 
 

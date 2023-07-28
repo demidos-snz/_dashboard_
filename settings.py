@@ -4,8 +4,10 @@ import os
 import typing as t
 
 import pandas as pd
+from pymorphy2 import MorphAnalyzer
 
-locale.setlocale(locale.LC_TIME, 'ru_RU')
+locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
+morph: MorphAnalyzer = MorphAnalyzer()
 
 TITLE_APP: str = 'Мониторинг отрасли ЖКХ'
 
@@ -124,7 +126,10 @@ NEW_TER: pd.DataFrame = pd.DataFrame(
     },
 )
 
-MONTHS: tuple[str] = tuple(month for month in list(calendar.month_name) if month)
+MONTHS_DICT: dict[int, str] = dict(zip(range(1, 13), (
+    morph.parse(month)[0].normal_form.lower() for month in list(calendar.month_name) if month
+)))
+MONTHS: tuple[str, ...] = tuple(MONTHS_DICT.values())
 
 BUTTON_STYLE: dict[str, t.Any] = {
     'fontFamily': 'RobotoCondensed-Light',
