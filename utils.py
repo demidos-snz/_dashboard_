@@ -1,6 +1,4 @@
 import base64
-import calendar
-from time import strptime
 
 import geojson
 import numpy as np
@@ -10,7 +8,7 @@ import plotly.graph_objects as go
 from clickhouse_driver import Client
 from dash import html
 
-from settings import BUTTON_STYLE
+from settings import BUTTON_STYLE, MONTHS, MONTHS_DICT
 
 
 def get_total_integer(df: pd.DataFrame, field_name: str) -> str:
@@ -186,7 +184,7 @@ def get_figure3(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
 
 def get_current_month_from_db(client: Client) -> str:
     month: int = get_current_month_from_db_int(client=client)
-    return calendar.month_name[month].lower()
+    return MONTHS_DICT[month]
 
 
 def get_current_month_from_db_int(client: Client) -> int:
@@ -209,4 +207,4 @@ def get_current_year_from_db(years: list[int]) -> int:
 
 
 def convert_month_from_dashboard_to_int(month: str) -> int:
-    return strptime(month, '%B').tm_mon
+    return MONTHS.index(month) + 1
