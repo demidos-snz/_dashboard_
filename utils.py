@@ -1,4 +1,5 @@
 import base64
+import os
 
 import geojson
 import numpy as np
@@ -9,6 +10,9 @@ from clickhouse_driver import Client
 from dash import html
 
 from settings import BUTTON_STYLE, MONTHS, MONTHS_DICT
+
+SUNBURST_CSV_PATH: str = os.path.normpath('sunburst.csv')
+DF_SUNBURST: pd.DataFrame = pd.read_csv(filepath_or_buffer=SUNBURST_CSV_PATH, encoding='cp1251', sep=';')
 
 
 def get_cpd_total_integer(df: pd.DataFrame, field_name: str) -> str:
@@ -45,12 +49,15 @@ def ggg(df: pd.DataFrame, region: str, x_axis: tuple[str]) -> tuple[
     go.Figure, dict[str, str],
     go.Figure, dict[str, str],
     go.Figure, dict[str, str],
+    # go.Figure, dict[str, str],
+    # go.Figure, dict[str, str],
     dict[str, str],
-    # go.Figure, dict[str, str],
-    # go.Figure, dict[str, str],
-    dict[str, str], str, dict[str, str],
+    dict[str, str],
+    str, dict[str, str],
     str, str, str,
+    go.Figure, dict[str, str],
 ]:
+    # fixme year
     df_2022 = df[(df['year'] == 2022) & (df['region_name'] == region)]
     df_2023 = df[(df['year'] == 2023) & (df['region_name'] == region)]
     df = df_2022.merge(df_2023, how='inner', on=['month', 'region_name'])
@@ -60,6 +67,8 @@ def ggg(df: pd.DataFrame, region: str, x_axis: tuple[str]) -> tuple[
     fig3 = get_figure3(df=df, x_axis=x_axis)
     # fig4 = get_figure4(df=df, x_axis=x_axis)
     # fig5 = get_figure5(df=df, x_axis=x_axis)
+
+    fig_sunburst: go.Figure = get_sunburst(df=get_region_data_for_sunburst(region=region))
 
     span_cr_charged_sum_value: str = get_cr_total_integer(
         df=df,
@@ -98,12 +107,18 @@ def ggg(df: pd.DataFrame, region: str, x_axis: tuple[str]) -> tuple[
         {'display': 'block'},
         fig3,
         {'display': 'block'},
-        {'display': 'block'},
         # fig4,
         # {'display': 'block'},
         # fig5,
         # {'display': 'block'},
+        {
+            'display': 'block',
+            'position': 'relative',
+            'padding-left': 70,
+        },
+
         {'display': 'none'},
+
         region,
         {
             'display': 'block',
@@ -114,6 +129,9 @@ def ggg(df: pd.DataFrame, region: str, x_axis: tuple[str]) -> tuple[
         span_cr_charged_sum_value,
         span_cr_payed_sum,
         span_cr_debts_sum,
+
+        fig_sunburst,
+        {'display': 'block'},
     )
 
 
@@ -122,8 +140,8 @@ def get_figure1(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
     fig = px.line(
         x=x_axis,
         y=df['cpd_charged_sum_x'],
+        # fixme year
         color=px.Constant('2022 год'),
-        # labels=dict(x='Месяц', y='Начисления, в руб', color='Год'),
         labels=dict(x='', y='', color='Год'),
     )
 
@@ -160,6 +178,7 @@ def get_figure2(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
     fig = px.line(
         x=x_axis,
         y=df['cpd_already_payed_sum_x'],
+        # fixme year
         color=px.Constant('2022 год'),
         labels=dict(x='', y='', color='Год'),
     )
@@ -225,6 +244,7 @@ def get_figure3(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
         ),
     )
     fig.update_layout(
+        # fixme year
         title='Динамика начислений, оплат и задолженности за ЖКУ в 2023 году, руб.',
         title_x=0.1,
         barmode='group',
@@ -265,3 +285,7 @@ def get_current_year_from_db(years: list[int]) -> int:
 
 def convert_month_from_dashboard_to_int(month: str) -> int:
     return MONTHS.index(month) + 1
+
+
+def get_region_data_for_sunburst(region: str) -> pd.DataFrame:
+    return DF_SUNBURST[DF_SUNBURST['region_name'] == region]

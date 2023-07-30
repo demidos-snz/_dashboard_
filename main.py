@@ -557,7 +557,6 @@ app.layout = html.Div(
 
                         html.Div(
                             [
-
                                 html.Span(
                                     id='span_cr_debts_sum',
                                     style={
@@ -573,7 +572,7 @@ app.layout = html.Div(
 
                                 html.Span(
                                     id='div_cr_debts_sum_text',
-                                    children=f'Задолженность по уплате взносов за {CURRENT_YEAR_FROM_DB} год',
+                                    children=f'задолженность по уплате взносов за {CURRENT_YEAR_FROM_DB} год',
                                     style={
                                         'fontSize': '19px',
                                         'lineHeight': '1.15em',
@@ -591,6 +590,21 @@ app.layout = html.Div(
                         ),
                     ],
                     id='div_cr_total_for_russia',
+                    style={
+                        'display': 'none',
+                        'position': 'relative',
+                        'padding-left': 200,
+                    },
+                ),
+                html.Div(
+                    dcc.Graph(
+                        id='graph_sunburst',
+                        config={
+                            'scrollZoom': False,
+                            'displayModeBar': False,
+                        },
+                    ),
+                    id='div_sunburst',
                     style={
                         'display': 'none',
                     },
@@ -754,21 +768,25 @@ def get_map(df: pd.DataFrame, value: str) -> go.Figure:
         Output(component_id='span_cr_charged_sum', component_property='children', allow_duplicate=True),
         Output(component_id='span_cr_payed_sum', component_property='children', allow_duplicate=True),
         Output(component_id='span_cr_debts_sum', component_property='children', allow_duplicate=True),
+
+        Output(component_id='graph_sunburst', component_property='figure', allow_duplicate=True),
+        Output(component_id='div_sunburst', component_property='style', allow_duplicate=True),
     ],
     Input(component_id='map', component_property='clickData'),
     prevent_initial_call=True,
 )
 def hide_map_by_click_map(clickData: dict[str, list[dict[str, t.Any]]]) -> tuple[
     html.Button, dict[str, str],
-    dict[str, str], dict[str, str],  dict[str, str],
+    dict[str, str], dict[str, str], dict[str, str],
     go.Figure, dict[str, str],
     go.Figure, dict[str, str],
     go.Figure, dict[str, str],
+    # go.Figure, dict[str, str],
+    # go.Figure, dict[str, str],
     dict[str, str],
-    # go.Figure, dict[str, str],
-    # go.Figure, dict[str, str],
     dict[str, str], str, dict[str, str],
     str, str, str,
+    go.Figure, dict[str, str],
 ]:
     if clickData is not None:
         region: str = clickData['points'][0]['hovertext']
@@ -796,6 +814,7 @@ def hide_map_by_click_map(clickData: dict[str, list[dict[str, t.Any]]]) -> tuple
         # Output(component_id='graph_cr_payed_sum', component_property='figure', allow_duplicate=True),
         # Output(component_id='div_cr_payed_sum', component_property='style', allow_duplicate=True),
         Output(component_id='div_cr_total_for_russia', component_property='style', allow_duplicate=True),
+
         Output(component_id='div_regions_list', component_property='style', allow_duplicate=True),
 
         Output(component_id='region_name', component_property='children', allow_duplicate=True),
@@ -804,21 +823,25 @@ def hide_map_by_click_map(clickData: dict[str, list[dict[str, t.Any]]]) -> tuple
         Output(component_id='span_cr_charged_sum', component_property='children', allow_duplicate=True),
         Output(component_id='span_cr_payed_sum', component_property='children', allow_duplicate=True),
         Output(component_id='span_cr_debts_sum', component_property='children', allow_duplicate=True),
+
+        Output(component_id='graph_sunburst', component_property='figure', allow_duplicate=True),
+        Output(component_id='div_sunburst', component_property='style', allow_duplicate=True),
     ],
     Input(component_id='dropdown_regions', component_property='value'),
     prevent_initial_call=True,
 )
 def hide_map_by_dropdown_region(region: str) -> tuple[
     html.Button, dict[str, str],
-    dict[str, str], dict[str, str],  dict[str, str],
+    dict[str, str], dict[str, str], dict[str, str],
     go.Figure, dict[str, str],
     go.Figure, dict[str, str],
     go.Figure, dict[str, str],
+    # go.Figure, dict[str, str],
+    # go.Figure, dict[str, str],
     dict[str, str],
-    # go.Figure, dict[str, str],
-    # go.Figure, dict[str, str],
     dict[str, str], str, dict[str, str],
     str, str, str,
+    go.Figure, dict[str, str],
 ]:
     return ggg(df=df_all, region=region, x_axis=X_AXIS)
 
@@ -840,16 +863,20 @@ def hide_map_by_dropdown_region(region: str) -> tuple[
         Output(component_id='div_regions_list', component_property='style', allow_duplicate=True),
 
         Output(component_id='region_name', component_property='style', allow_duplicate=True),
+
+        Output(component_id='div_sunburst', component_property='style', allow_duplicate=True),
     ],
     Input(component_id='back_to_map', component_property='n_clicks'),
     prevent_initial_call=True,
 )
 def back_to_map(n_clicks: int) -> tuple[
-    dict[str, str], dict[str, str], dict[str, t.Any],
+    dict[str, str],
+    dict[str, str], dict[str, t.Any], dict[str, str],
     dict[str, str], dict[str, str], dict[str, str],
     dict[str, str], dict[str, str],
     # dict[str, str], dict[str, str],
-    dict[str, str], dict[str, str],
+    dict[str, str],
+    dict[str, str],
 ]:
     return (
         {'display': 'none'},
@@ -877,10 +904,13 @@ def back_to_map(n_clicks: int) -> tuple[
             'display': 'block',
             'width': '300px',
         },
+
         {
             'display': 'none',
             'width': '300px',
         },
+
+        {'display': 'none'},
     )
 
 
