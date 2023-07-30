@@ -9,7 +9,7 @@ from init_data import df_all
 from layouts.charts_by_region import div_charts_by_region
 
 
-def hide_map_by_click_map_layout():
+def hide_map_by_click_map_layout() -> html.Div:
     return html.Div(
         # fixme id
         id='',

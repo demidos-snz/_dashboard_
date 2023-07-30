@@ -6,7 +6,7 @@ from layouts.utils import b64_image
 from utils import get_cpd_total_integer
 
 
-def div_total_for_russia():
+def div_total_for_russia() -> html.Div:
     return html.Div(
         id='div_total_for_russia',
         style={'display': 'block'},

@@ -1,7 +1,7 @@
 from dash import html, dcc
 
 
-def map_layout():
+def map_layout() -> html.Div:
     return html.Div(
         id='div_map',
         style={

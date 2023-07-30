@@ -5,7 +5,7 @@ from init_data import ALL_YEARS_FROM_DB, CURRENT_YEAR_FROM_DB, CURRENT_MONTH_FRO
 from settings import BUTTON_STYLE, DEFAULT_RADIO_ITEM
 
 
-def div_filters():
+def div_filters() -> html.Div:
     return html.Div(
         id='div_statistic_settings',
         style={

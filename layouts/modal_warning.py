@@ -2,7 +2,7 @@ from dash import html
 import dash_bootstrap_components as dbc
 
 
-def modal_warning():
+def modal_warning() -> html.Div:
     return html.Div(
         children=[
             dbc.Modal(

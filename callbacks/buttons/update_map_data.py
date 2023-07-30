@@ -10,7 +10,7 @@ from layouts.map import map_layout
 from utils import convert_month_from_dashboard_to_int, get_cpd_total_integer
 
 
-def update_map_by_button():
+def update_map_by_button() -> html.Div:
     return html.Div(
         # fixme id
         id='',

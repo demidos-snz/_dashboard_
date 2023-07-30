@@ -7,7 +7,7 @@ from init_data import df_all
 from layouts.dropdown_regions import dropdown_regions_layout
 
 
-def hide_map_by_dropdown_regions_layout():
+def hide_map_by_dropdown_regions_layout() -> html.Div:
     return html.Div(
         # fixme id
         id='',

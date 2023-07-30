@@ -6,7 +6,7 @@ from app import app
 from layouts.back_to_map import back_to_map_layout
 
 
-def hide_charts_by_click_return_button():
+def hide_charts_by_click_return_button() -> html.Div:
     return html.Div(
         # fixme id
         id='',

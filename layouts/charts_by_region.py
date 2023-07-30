@@ -3,7 +3,7 @@ from dash import html, dcc
 from init_data import CURRENT_YEAR_FROM_DB
 
 
-def div_charts_by_region():
+def div_charts_by_region() -> html.Div:
     return html.Div(
         # fixme id
         id='',
