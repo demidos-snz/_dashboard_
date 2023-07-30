@@ -19,28 +19,34 @@ def get_region_data_for_sunburst(region: str) -> pd.DataFrame:
 
 def get_charts_by_region(df: pd.DataFrame, region: str, x_axis: tuple[str] = X_AXIS) -> tuple[
     html.Button, dict[str, str],
+
     dict[str, str], dict[str, str],  dict[str, str],
+
     go.Figure, dict[str, str],
     go.Figure, dict[str, str],
     go.Figure, dict[str, str],
-    # go.Figure, dict[str, str],
-    # go.Figure, dict[str, str],
+    go.Figure, dict[str, str],
+    go.Figure, dict[str, str],
     dict[str, str],
+
     dict[str, str],
+
     str, dict[str, str],
+
     str, str, str,
+
     go.Figure, dict[str, str],
 ]:
     # fixme year
-    df_2022 = df[(df['year'] == 2022) & (df['region_name'] == region)]
-    df_2023 = df[(df['year'] == 2023) & (df['region_name'] == region)]
-    df = df_2022.merge(df_2023, how='inner', on=['month', 'region_name'])
+    df_2022: pd.DataFrame = df[(df['year'] == 2022) & (df['region_name'] == region)]
+    df_2023: pd.DataFrame = df[(df['year'] == 2023) & (df['region_name'] == region)]
+    df: pd.DataFrame = df_2022.merge(df_2023, how='inner', on=['month', 'region_name'])
 
-    fig1 = get_figure1(df=df, x_axis=x_axis)
-    fig2 = get_figure2(df=df, x_axis=x_axis)
-    fig3 = get_figure3(df=df, x_axis=x_axis)
-    # fig4 = get_figure4(df=df, x_axis=x_axis)
-    # fig5 = get_figure5(df=df, x_axis=x_axis)
+    fig1: go.Figure = get_figure1(df=df, x_axis=x_axis)
+    fig2: go.Figure = get_figure2(df=df, x_axis=x_axis)
+    fig3: go.Figure = get_figure3(df=df, x_axis=x_axis)
+    fig4: go.Figure = get_figure4(df=df, x_axis=x_axis)
+    fig5: go.Figure = get_figure5(df=df, x_axis=x_axis)
 
     fig_sunburst: go.Figure = get_sunburst(df=get_region_data_for_sunburst(region=region))
 
@@ -81,10 +87,10 @@ def get_charts_by_region(df: pd.DataFrame, region: str, x_axis: tuple[str] = X_A
         {'display': 'block'},
         fig3,
         {'display': 'block'},
-        # fig4,
-        # {'display': 'block'},
-        # fig5,
-        # {'display': 'block'},
+        fig4,
+        {'display': 'block'},
+        fig5,
+        {'display': 'block'},
         {
             'display': 'block',
             'position': 'relative',
@@ -111,7 +117,7 @@ def get_charts_by_region(df: pd.DataFrame, region: str, x_axis: tuple[str] = X_A
 
 # fixme name
 def get_figure1(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
-    fig = px.line(
+    fig: go.Figure = px.line(
         x=x_axis,
         y=df['cpd_charged_sum_x'],
         # fixme year
@@ -149,7 +155,7 @@ def get_figure1(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
 
 # fixme name
 def get_figure2(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
-    fig = px.line(
+    fig: go.Figure = px.line(
         x=x_axis,
         y=df['cpd_already_payed_sum_x'],
         # fixme year
@@ -186,7 +192,7 @@ def get_figure2(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
 
 # fixme name
 def get_figure3(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
-    fig = go.Figure()
+    fig: go.Figure = go.Figure()
     fig.add_trace(
         trace=go.Bar(
             x=x_axis,
@@ -233,8 +239,83 @@ def get_figure3(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
     return fig
 
 
+# fixme name
+def get_figure4(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
+    fig: go.Figure = px.line(
+        x=x_axis,
+        y=df['cr_total_accured_contib_sum_x'],
+        # fixme year
+        color=px.Constant('2022 год'),
+        labels=dict(x='', y='', color='Год'),
+    )
+
+    fig.update_traces(
+        line_color='rgb(176, 101, 194)',
+        line_width=3,
+        hovertemplate='<br>'.join(['Начислено %{y}']),
+    )
+    # fixme year
+    fig.add_bar(x=x_axis, y=df['cr_total_accured_contib_sum_y'], name='2023 год')
+    fig.update_traces(
+        marker_color='rgb(61, 165, 226)',
+        customdata=np.transpose(df['cr_total_accured_contib_sum_y']),
+        hovertemplate='<br>'.join(['Начислено %{y}']),
+    )
+    fig.update_layout(
+        title='Начисление взносов за капительный ремонт, руб.',
+        title_x=0.5,
+        hovermode='x unified',
+        width=600,
+        height=500,
+        hoverlabel={
+            'bordercolor': 'white',
+            'font_family': 'Helvetica',
+            'font_size': 16,
+        },
+    )
+
+    return fig
+
+
+# fixme name
+def get_figure5(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
+    fig: go.Figure = px.line(
+        x=x_axis,
+        y=df['cr_total_paid_contib_sum_x'],
+        # fixme year
+        color=px.Constant('2022 год'),
+        labels=dict(x='', y='', color='Год'),
+    )
+
+    fig.update_traces(
+        line_color='rgb(176, 101, 194)',
+        line_width=3,
+        hovertemplate='<br>'.join(['Оплачено %{y}']),
+    )
+    # fixme year
+    fig.add_bar(x=x_axis, y=df['cr_total_paid_contib_sum_y'], name='2023 год')
+    fig.update_traces(
+        marker_color='rgb(61, 165, 226)',
+        hovertemplate='<br>'.join(['Оплачено %{y}']),
+    )
+    fig.update_layout(
+        title='Сбор взносов за капитальный ремонт, руб.',
+        title_x=0.5,
+        hovermode='x unified',
+        width=600,
+        height=500,
+        hoverlabel={
+            'bordercolor': 'white',
+            'font_family': 'Helvetica',
+            'font_size': 16,
+        },
+    )
+
+    return fig
+
+
 def get_sunburst(df: pd.DataFrame) -> go.Figure:
-    fig = px.sunburst(
+    fig: go.Figure = px.sunburst(
         data_frame=df,
         names='categories',
         parents='parent',
@@ -262,7 +343,6 @@ def get_sunburst(df: pd.DataFrame) -> go.Figure:
             'font_family': 'Helvetica',
         },
         legend_orientation="h",
-        # width=900,
         height=900,
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',

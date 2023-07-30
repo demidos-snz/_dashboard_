@@ -34,10 +34,10 @@ def hide_map_by_click_map_layout():
         Output(component_id='div_already_payed_sum', component_property='style', allow_duplicate=True),
         Output(component_id='graph_debts_sum', component_property='figure', allow_duplicate=True),
         Output(component_id='div_debts_sum', component_property='style', allow_duplicate=True),
-        # Output(component_id='graph_cr_charges_sum', component_property='figure', allow_duplicate=True),
-        # Output(component_id='div_cr_charges_sum', component_property='style', allow_duplicate=True),
-        # Output(component_id='graph_cr_payed_sum', component_property='figure', allow_duplicate=True),
-        # Output(component_id='div_cr_payed_sum', component_property='style', allow_duplicate=True),
+        Output(component_id='graph_cr_charges_sum', component_property='figure', allow_duplicate=True),
+        Output(component_id='div_cr_charges_sum', component_property='style', allow_duplicate=True),
+        Output(component_id='graph_cr_payed_sum', component_property='figure', allow_duplicate=True),
+        Output(component_id='div_cr_payed_sum', component_property='style', allow_duplicate=True),
         Output(component_id='div_cr_total_for_russia', component_property='style', allow_duplicate=True),
 
         Output(component_id='div_regions_list', component_property='style', allow_duplicate=True),
@@ -57,15 +57,20 @@ def hide_map_by_click_map_layout():
 )
 def hide_map_by_click_map(click_data: dict[str, list[dict[str, t.Any]]]) -> tuple[
     html.Button, dict[str, str],
+
     dict[str, str], dict[str, str], dict[str, str],
+
     go.Figure, dict[str, str],
     go.Figure, dict[str, str],
     go.Figure, dict[str, str],
-    # go.Figure, dict[str, str],
-    # go.Figure, dict[str, str],
+    go.Figure, dict[str, str],
+    go.Figure, dict[str, str],
     dict[str, str],
+
     dict[str, str], str, dict[str, str],
+
     str, str, str,
+
     go.Figure, dict[str, str],
 ]:
     if click_data is not None:

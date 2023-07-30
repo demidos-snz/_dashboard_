@@ -32,10 +32,10 @@ def hide_map_by_dropdown_regions_layout():
         Output(component_id='div_already_payed_sum', component_property='style', allow_duplicate=True),
         Output(component_id='graph_debts_sum', component_property='figure', allow_duplicate=True),
         Output(component_id='div_debts_sum', component_property='style', allow_duplicate=True),
-        # Output(component_id='graph_cr_charges_sum', component_property='figure', allow_duplicate=True),
-        # Output(component_id='div_cr_charges_sum', component_property='style', allow_duplicate=True),
-        # Output(component_id='graph_cr_payed_sum', component_property='figure', allow_duplicate=True),
-        # Output(component_id='div_cr_payed_sum', component_property='style', allow_duplicate=True),
+        Output(component_id='graph_cr_charges_sum', component_property='figure', allow_duplicate=True),
+        Output(component_id='div_cr_charges_sum', component_property='style', allow_duplicate=True),
+        Output(component_id='graph_cr_payed_sum', component_property='figure', allow_duplicate=True),
+        Output(component_id='div_cr_payed_sum', component_property='style', allow_duplicate=True),
         Output(component_id='div_cr_total_for_russia', component_property='style', allow_duplicate=True),
 
         Output(component_id='div_regions_list', component_property='style', allow_duplicate=True),
@@ -55,15 +55,20 @@ def hide_map_by_dropdown_regions_layout():
 )
 def hide_map_by_dropdown_region(region: str) -> tuple[
     html.Button, dict[str, str],
+
     dict[str, str], dict[str, str], dict[str, str],
+
     go.Figure, dict[str, str],
     go.Figure, dict[str, str],
     go.Figure, dict[str, str],
-    # go.Figure, dict[str, str],
-    # go.Figure, dict[str, str],
+    go.Figure, dict[str, str],
+    go.Figure, dict[str, str],
     dict[str, str],
+
     dict[str, str], str, dict[str, str],
+
     str, str, str,
+
     go.Figure, dict[str, str],
 ]:
     return get_charts_by_region(df=df_all, region=region)

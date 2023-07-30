@@ -68,6 +68,44 @@ def div_charts_by_region():
             ),
 
             html.Div(
+                # fixme id
+                id='',
+                style={
+                    'display': 'flex',
+                },
+                children=[
+                    html.Div(
+                        id='div_cr_charges_sum',
+                        style={
+                            'display': 'none',
+                            'textAlign': 'center',
+                        },
+                        children=dcc.Graph(
+                            id='graph_cr_charges_sum',
+                            config={
+                                'scrollZoom': False,
+                                'displayModeBar': False,
+                            },
+                        ),
+                    ),
+
+                    html.Div(
+                        id='div_cr_payed_sum',
+                        style={
+                            'display': 'none',
+                        },
+                        children=dcc.Graph(
+                            id='graph_cr_payed_sum',
+                            config={
+                                'scrollZoom': False,
+                                'displayModeBar': False,
+                            },
+                        ),
+                    ),
+                ],
+            ),
+
+            html.Div(
                 id='div_cr_total_for_russia',
                 style={
                     'display': 'none',

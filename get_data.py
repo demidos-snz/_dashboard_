@@ -41,15 +41,15 @@ def df_all_data_from_client(client: Client) -> pd.DataFrame:
 
 
 def __convert_columns_type(df: pd.DataFrame) -> pd.DataFrame:
-    df['cpd_charged_sum'] = df['cpd_charged_sum'].astype('int64')
-    df['cpd_already_payed_sum'] = df['cpd_already_payed_sum'].astype('int64')
-    df['cpd_previous_period_debts_sum'] = df['cpd_previous_period_debts_sum'].astype('int64')
-    df['cr_total_accured_contib_sum'] = df['cr_total_accured_contib_sum'].astype('int64')
-    df['cr_total_paid_contib_sum'] = df['cr_total_paid_contib_sum'].astype('int64')
-    df['cr_debt_sum'] = df['cr_debt_sum'].astype('int64')
-    df['report_month'] = pd.to_datetime(df['report_month'], format='%Y-%m-%d')
-    df['year'] = df['report_month'].dt.strftime('%Y').astype('int')
-    df['month'] = df['report_month'].dt.strftime('%m').astype('int')
+    df['cpd_charged_sum']: pd.Series = df['cpd_charged_sum'].astype('int64')
+    df['cpd_already_payed_sum']: pd.Series = df['cpd_already_payed_sum'].astype('int64')
+    df['cpd_previous_period_debts_sum']: pd.Series = df['cpd_previous_period_debts_sum'].astype('int64')
+    df['cr_total_accured_contib_sum']: pd.Series = df['cr_total_accured_contib_sum'].astype('int64')
+    df['cr_total_paid_contib_sum']: pd.Series = df['cr_total_paid_contib_sum'].astype('int64')
+    df['cr_debt_sum']: pd.Series = df['cr_debt_sum'].astype('int64')
+    df['report_month']: pd.Series = pd.to_datetime(df['report_month'], format='%Y-%m-%d')
+    df['year']: pd.Series = df['report_month'].dt.strftime('%Y').astype('int')
+    df['month']: pd.Series = df['report_month'].dt.strftime('%m').astype('int')
     return df
 
 

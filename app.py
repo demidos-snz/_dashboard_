@@ -4,7 +4,7 @@ from dash import Dash
 from constants import TITLE_APP
 
 
-app = Dash(
+app: Dash = Dash(
     name=__name__,
     external_stylesheets=[dbc.themes.BOOTSTRAP],
     title=TITLE_APP,

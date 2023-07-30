@@ -28,8 +28,8 @@ def hide_charts_by_click_return_button():
         Output(component_id='div_already_payed_sum', component_property='style', allow_duplicate=True),
         Output(component_id='div_debts_sum', component_property='style', allow_duplicate=True),
         Output(component_id='div_cr_total_for_russia', component_property='style', allow_duplicate=True),
-        # Output(component_id='div_cr_charges_sum', component_property='style', allow_duplicate=True),
-        # Output(component_id='div_cr_payed_sum', component_property='style', allow_duplicate=True),
+        Output(component_id='div_cr_charges_sum', component_property='style', allow_duplicate=True),
+        Output(component_id='div_cr_payed_sum', component_property='style', allow_duplicate=True),
         Output(component_id='div_regions_list', component_property='style', allow_duplicate=True),
 
         Output(component_id='region_name', component_property='style', allow_duplicate=True),
@@ -41,10 +41,13 @@ def hide_charts_by_click_return_button():
 )
 def back_to_map(_: int) -> tuple[
     dict[str, str],
+
     dict[str, str], dict[str, t.Any], dict[str, str],
+
     dict[str, str], dict[str, str], dict[str, str],
-    dict[str, str], dict[str, str],
-    # dict[str, str], dict[str, str],
+    dict[str, str], dict[str, str], dict[str, str],
+    dict[str, str],
+
     dict[str, str],
     dict[str, str],
 ]:
@@ -68,8 +71,8 @@ def back_to_map(_: int) -> tuple[
         {'display': 'none'},
         {'display': 'none'},
         {'display': 'none'},
-        # {'display': 'none'},
-        # {'display': 'none'},
+        {'display': 'none'},
+        {'display': 'none'},
         {
             'display': 'block',
             'width': '300px',

@@ -16,7 +16,7 @@ HOVERTEMPLATE: str = (
 
 def get_geodata(path: str = GEOJSON_PATH) -> geojson.FeatureCollection:
     with open(file=path, encoding='utf-8') as f:
-        data = geojson.load(f)
+        data: geojson.FeatureCollection = geojson.load(f)
     return data
 
 
