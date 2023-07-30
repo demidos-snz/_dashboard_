@@ -1,7 +1,20 @@
 import pandas as pd
 from clickhouse_driver import Client
 
-from settings import NEW_TER
+NEW_TER: pd.DataFrame = pd.DataFrame(
+    data={
+        'region_code': [93, 94, 95, 96],
+        'region_name': [
+            'Донецкая Народная республика',
+            'Луганская Народная республика',
+            'Запорожская область',
+            'Херсонская область',
+        ],
+        'cpd_charged_sum': [0, 0, 0, 0],
+        'cpd_already_payed_sum': [0, 0, 0, 0],
+        'cpd_previous_period_debts_sum': [0, 0, 0, 0],
+    },
+)
 
 
 def df_all_data_from_client(client: Client) -> pd.DataFrame:
