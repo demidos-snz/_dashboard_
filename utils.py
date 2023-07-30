@@ -289,3 +289,41 @@ def convert_month_from_dashboard_to_int(month: str) -> int:
 
 def get_region_data_for_sunburst(region: str) -> pd.DataFrame:
     return DF_SUNBURST[DF_SUNBURST['region_name'] == region]
+
+
+def get_sunburst(df: pd.DataFrame) -> go.Figure:
+    fig = px.sunburst(
+        data_frame=df,
+        names='categories',
+        parents='parent',
+        values='value',
+        hover_data={
+            'parent': False,
+        },
+        custom_data=[
+            df['categories'],
+            make_human_readable_data(column=df['value'])
+        ]
+    )
+
+    hovertemp: str = '<b>%{customdata[0]} - %{customdata[1]} руб.'
+
+    fig.update_layout(
+        # fixme year
+        title=dict(
+            text='Исполнение краткосрочных планов за 2023 год по видам работ',
+            font=dict(size=30, family='RobotoCondensed-Regular', color='rgba(13, 31, 62, 0.74)'),
+        ),
+        title_x=0.5,
+        hoverlabel={
+            'font_size': 20,
+            'font_family': 'Helvetica',
+        },
+        legend_orientation="h",
+        # width=900,
+        height=900,
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+    )
+    fig.update_traces(hovertemplate=hovertemp)
+    return fig
