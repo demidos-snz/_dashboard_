@@ -13,8 +13,17 @@ from dash import html
 
 from settings import BUTTON_STYLE
 
-SUNBURST_CSV_PATH: str = os.path.normpath('sunburst.csv')
-DF_SUNBURST: pd.DataFrame = pd.read_csv(filepath_or_buffer=SUNBURST_CSV_PATH, encoding='cp1251', sep=';')
+locale.setlocale(locale.LC_TIME, 'ru_RU')
+# locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
+# morph = pymorphy2.MorphAnalyzer()
+
+# SUNBURST_CSV_PATH: str = os.path.normpath('sunburst.csv')
+# DF_SUNBURST: pd.DataFrame = pd.read_csv(SUNBURST_CSV_PATH,
+#                                         encoding='cp1251',
+#                                         sep=';')
+client: Client = Client(**CONNECT_PARAMS)
+DF_SUNBURST = df_sunburst(client=client)
+client.disconnect()
 
 
 def get_cpd_total_integer(df: pd.DataFrame, field_name: str) -> str:
@@ -358,6 +367,7 @@ def get_sunburst(df: pd.DataFrame) -> go.Figure:
 def get_current_month_from_db(client: Client) -> str:
     month: int = get_current_month_from_db_int(client=client)
     return calendar.month_name[month].lower()
+    # return morph.parse(calendar.month_name[month])[0].normal_form.lower()
 
 
 def get_current_month_from_db_int(client: Client) -> int:
@@ -381,6 +391,9 @@ def get_current_year_from_db(years: list[int]) -> int:
 
 def convert_month_from_dashboard_to_int(month: str) -> int:
     return strptime(month, '%B').tm_mon
+    monthes_list = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль',
+                    'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь']
+    # return monthes_list.index(month) + 1
 
 
 def get_region_data_for_sunburst(region: str) -> pd.DataFrame:

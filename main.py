@@ -44,11 +44,16 @@ client.disconnect()
 
 geodata: geojson.FeatureCollection = get_geodata()
 
+# server = flask.Flask(__name__)
+
 app = Dash(
     name=__name__,
+    # server=server,
     external_stylesheets=[dbc.themes.BOOTSTRAP],
     title=TITLE_APP,
 )
+
+# app.config.suppress_callback_exceptions = True
 
 app.layout = html.Div(
     children=[
@@ -707,3 +712,4 @@ def back_to_map(n_clicks: int) -> tuple[
 
 if __name__ == '__main__':
     app.run(debug=True)
+    # app.run(host='0.0.0.0', debug=True)

@@ -6,6 +6,8 @@ import typing as t
 import pandas as pd
 
 locale.setlocale(locale.LC_TIME, 'ru_RU')
+# locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
+# morph = pymorphy2.MorphAnalyzer()
 
 TITLE_APP: str = 'Мониторинг отрасли ЖКХ'
 
@@ -130,6 +132,7 @@ NEW_TER: pd.DataFrame = pd.DataFrame(
 )
 
 MONTHS: tuple[str] = tuple(month for month in list(calendar.month_name) if month)
+# MONTHS = tuple(morph.parse(month)[0].normal_form.lower() for month in list(calendar.month_name) if month)
 
 BUTTON_STYLE: dict[str, t.Any] = {
     'fontFamily': 'RobotoCondensed-Light',
