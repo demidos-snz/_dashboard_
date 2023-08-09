@@ -82,11 +82,13 @@ app.layout = html.Div(
                         html.Div(
                             [
                                 html.Img(
+                                    id='org_icon',
                                     src=b64_image(ORG_ICON_PATH),
                                 ),
 
                                 html.Span(
                                     id='span_charged_sum',
+                                    className='all_russia_stats',
                                     children=get_cpd_total_integer(
                                         df=df_grouped_by_regions_default,
                                         field_name='cpd_charged_sum',
@@ -95,6 +97,7 @@ app.layout = html.Div(
 
                                 html.Span(
                                     id='span_charged_sum_text',
+                                    className='all_russia_stats_text',
                                     children=f'начислено за {CURRENT_MONTH_FROM_DB} {CURRENT_YEAR_FROM_DB}',
                                 ),
                             ],
@@ -104,11 +107,13 @@ app.layout = html.Div(
                         html.Div(
                             [
                                 html.Img(
+                                    id='mkd_icon',
                                     src=b64_image(MKD_ICON_PATH),
                                 ),
 
                                 html.Span(
                                     id='span_already_payed_sum',
+                                    className='all_russia_stats',
                                     children=get_cpd_total_integer(
                                         df=df_grouped_by_regions_default,
                                         field_name='cpd_already_payed_sum',
@@ -117,6 +122,7 @@ app.layout = html.Div(
 
                                 html.Span(
                                     id='span_already_payed_sum_text',
+                                    className='all_russia_stats_text',
                                     children=f'оплачено за {CURRENT_MONTH_FROM_DB} {CURRENT_YEAR_FROM_DB}',
 
                                 ),
@@ -130,11 +136,13 @@ app.layout = html.Div(
                         html.Div(
                             [
                                 html.Img(
+                                    id='jd_icon',
                                     src=b64_image(JD_ICON_PATH),
                                 ),
 
                                 html.Span(
                                     id='span_previous_period_debts_sum',
+                                    className='all_russia_stats',
                                     children=get_cpd_total_integer(
                                         df=df_grouped_by_regions_default,
                                         field_name='cpd_previous_period_debts_sum',
@@ -143,16 +151,8 @@ app.layout = html.Div(
 
                                 html.Span(
                                     id='div_previous_period_debts_sum_text',
-                                    children=f'дебиторская задолженность за '
-                                             f'{CURRENT_MONTH_FROM_DB} {CURRENT_YEAR_FROM_DB}',
-                                    style={
-                                        'fontSize': '19px',
-                                        'lineHeight': '1.15em',
-                                        'fontWeight': 'bold',
-                                        'color': 'rgba(13, 31, 62, 0.74)',
-                                        'fontFamily': 'RobotoCondensed-Light',
-                                        'padding-right': 15,
-                                    },
+                                    className='all_russia_stats_text',
+                                    children=f'задолженность за {CURRENT_MONTH_FROM_DB} {CURRENT_YEAR_FROM_DB}',
                                 ),
                             ],
                             id='div_jd_icon',
