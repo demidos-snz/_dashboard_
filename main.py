@@ -632,16 +632,10 @@ def get_map(df: pd.DataFrame, value: str) -> go.Figure:
             'cr_total_paid_contib_sum': True,
             'cr_debt_sum': True,
         },
-        color_continuous_scale=[
-            (0, 'rgb(186, 227, 242)'), (0.00001, 'rgb(186, 227, 242)'),
-            (0.00001, 'rgb(239, 75, 46)'), (0.0001, 'rgb(239, 75, 46)'),
-            (0.0001, 'rgb(245, 153, 46)'), (0.1, 'rgb(245, 153, 46)'),
-            (0.1, 'rgb(253, 211, 17)'), (0.2, 'rgb(253, 211, 17)'),
-            (0.2, 'rgb(173, 211, 100)'), (1, 'rgb(173, 211, 100)'),
-        ],
+        color_continuous_scale=color_continuous_scale,
         featureidkey='properties.cartodb_id',
         mapbox_style='white-bg',
-        zoom=1.9,
+        zoom=2,
         center={'lat': 69, 'lon': 105},
         labels={
             'cpd_charged_sum': '',
@@ -651,18 +645,8 @@ def get_map(df: pd.DataFrame, value: str) -> go.Figure:
             'cr_total_paid_contib_sum': '',
             'cr_debt_sum': '',
         },
-        custom_data=[
-            df['region_code'],
-            df['region_name'],
-            make_human_readable_data(column=df['cpd_charged_sum']),
-            make_human_readable_data(column=df['cpd_already_payed_sum']),
-            make_human_readable_data(column=df['cpd_previous_period_debts_sum']),
-        ],
+        custom_data=custom_data,
     )
-    hovertemp: str = '<b>%{customdata[1]}</b><br>'
-    hovertemp += '<br><b>%{customdata[2]}</b> - Начислено<br>'
-    hovertemp += '<br><b>%{customdata[3]}</b> - Оплачено<br>'
-    hovertemp += '<br><b>%{customdata[4]}</b> - Задолженность<br>'
 
     fig.update_traces(
         hovertemplate=hovertemp,
@@ -670,7 +654,9 @@ def get_map(df: pd.DataFrame, value: str) -> go.Figure:
         marker_line_color='white',
     )
     fig.update_layout(
+        margin={"r": 0, "t": 0, "l": 0, "b": 0},
         height=730,
+        # clickmode='event+select',
         hoverlabel={
             'bgcolor': 'white',
             'bordercolor': '#dee2e6',
