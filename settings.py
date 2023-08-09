@@ -133,23 +133,3 @@ NEW_TER: pd.DataFrame = pd.DataFrame(
 MONTHS: tuple[str] = tuple(month for month in list(calendar.month_name) if month)
 # MONTHS = tuple(morph.parse(month)[0].normal_form.lower() for month in list(calendar.month_name) if month)
 
-BUTTON_STYLE: dict[str, t.Any] = {
-    'fontFamily': 'RobotoCondensed-Light',
-    'margin-right': 20,
-    'display': 'inline-block',
-    'height': '36px',
-    'color': '#555',
-    'textAlign': 'center',
-    'font-size': '11px',
-    'line-height': '37px',
-    'letterSpacing': '.1rem',
-    'text-transform': 'uppercase',
-    'font-weight': 'bold',
-    'text-decoration': 'none',
-    'white-space': 'nowrap',
-    'background-color': 'transparent',
-    'border-radius': '4px',
-    'border': '1px solid #bbb',
-    'cursor': 'pointer',
-    'box-sizing': 'border-box',
-}
