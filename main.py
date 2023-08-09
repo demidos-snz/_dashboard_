@@ -241,9 +241,9 @@ app.layout = html.Div(
                                 dcc.RadioItems(
                                     id='radio_items',
                                     options={
-                                        'cpd_charged_sum': '\tпо начислениям',
-                                        'cpd_already_payed_sum': '\tпо оплате',
-                                        'cpd_previous_period_debts_sum': '\tпо задолженности',
+                                        FIELDS_NAMES_CPD[0]: '\tпо начислениям',
+                                        FIELDS_NAMES_CPD[1]: '\tпо оплате',
+                                        FIELDS_NAMES_CPD[2]: '\tпо задолженности',
                                     },
                                     value=FIELDS_NAMES_CPD[0],
                                 ),
@@ -562,18 +562,61 @@ def display_map(click: int, value: str, year: int, month: str, ip_open: bool) ->
         ip_open,
         fig,
         {'visibility': 'visible'},
-        get_cpd_total_integer(df=df_grouped_by_regions, field_name='cpd_charged_sum'),
-        get_cpd_total_integer(df=df_grouped_by_regions, field_name='cpd_already_payed_sum'),
-        get_cpd_total_integer(df=df_grouped_by_regions, field_name='cpd_previous_period_debts_sum'),
+        get_cpd_total_integer(df=df_grouped_by_regions, field_name=field_names[0]),
+        get_cpd_total_integer(df=df_grouped_by_regions, field_name=field_names[1]),
+        get_cpd_total_integer(df=df_grouped_by_regions, field_name=field_names[2]),
         f'начислено за {month} {year}',
         f'оплачено за {month} {year}',
         f'дебиторская задолженность за {month} {year}',
         year,
         month.title(),
+        {field_names[0]: '\tпо начислениям',
+         field_names[1]: '\tпо оплате',
+         field_names[2]: '\tпо задолженности'},
+        value,
+        f'Всего в системе ({stats_category_value}):'
     )
 
 
 def get_map(df: pd.DataFrame, value: str) -> go.Figure:
+    if value in ['cpd_previous_period_debts_sum', 'cr_debt_sum']:
+        color_continuous_scale = [
+            (0, 'rgb(186, 227, 242)'), (0, 'rgb(186, 227, 242)'),
+            (0.0001, 'rgb(173, 211, 100)'), (0.15, 'rgb(173, 211, 100)'),
+            (0.15, 'rgb(173, 211, 100)'), (0.4, 'rgb(173, 211, 100)'),
+            (0.4, 'rgb(253, 211, 17)'), (0.6, 'rgb(253, 211, 17)'),
+            (0.6, 'rgb(245, 153, 46)'), (0.8, 'rgb(245, 153, 46)'),
+            (0.8, 'rgb(239, 75, 46)'), (1, 'rgb(239, 75, 46)'),
+        ]
+    else:
+        color_continuous_scale = [
+            (0, 'rgb(186, 227, 242)'), (0.00001, 'rgb(186, 227, 242)'),
+            (0.00001, 'rgb(239, 75, 46)'), (0.0001, 'rgb(239, 75, 46)'),
+            (0.0001, 'rgb(245, 153, 46)'), (0.1, 'rgb(245, 153, 46)'),
+            (0.1, 'rgb(253, 211, 17)'), (0.2, 'rgb(253, 211, 17)'),
+            (0.2, 'rgb(173, 211, 100)'), (1, 'rgb(173, 211, 100)'),
+        ]
+    if value.startswith('cpd'):
+        custom_data = [df['region_name'],
+                       make_human_readable_data(column=df['cpd_charged_sum']),
+                       make_human_readable_data(column=df['cpd_already_payed_sum']),
+                       make_human_readable_data(column=df['cpd_previous_period_debts_sum'])]
+        hovertemp: str = '<b>%{customdata[0]}</b><br>'
+        hovertemp += '<br><b>Собираемость платежей за ЖКУ</b><br>'
+        hovertemp += '<br><b>%{customdata[1]}</b> - Начислено<br>'
+        hovertemp += '<br><b>%{customdata[2]}</b> - Оплачено<br>'
+        hovertemp += '<br><b>%{customdata[3]}</b> - Задолженность<br>'
+    else:
+        custom_data = [df['region_name'],
+                       make_human_readable_data(column=df['cr_total_accured_contib_sum']),
+                       make_human_readable_data(column=df['cr_total_paid_contib_sum']),
+                       make_human_readable_data(column=df['cr_debt_sum'])]
+        hovertemp: str = '<b>%{customdata[0]}</b><br>'
+        hovertemp += '<br><b>Собираемость взносов на капремонт</b><br>'
+        hovertemp += '<br><b>%{customdata[1]}</b> - Начислено<br>'
+        hovertemp += '<br><b>%{customdata[2]}</b> - Оплачено<br>'
+        hovertemp += '<br><b>%{customdata[3]}</b> - Задолженность<br>'
+
     fig = px.choropleth_mapbox(
         data_frame=df,
         geojson=geodata,
@@ -585,6 +628,9 @@ def get_map(df: pd.DataFrame, value: str) -> go.Figure:
             'cpd_charged_sum': True,
             'cpd_already_payed_sum': True,
             'cpd_previous_period_debts_sum': True,
+            'cr_total_accured_contib_sum': True,
+            'cr_total_paid_contib_sum': True,
+            'cr_debt_sum': True,
         },
         color_continuous_scale=[
             (0, 'rgb(186, 227, 242)'), (0.00001, 'rgb(186, 227, 242)'),
@@ -601,6 +647,9 @@ def get_map(df: pd.DataFrame, value: str) -> go.Figure:
             'cpd_charged_sum': '',
             'cpd_already_payed_sum': '',
             'cpd_previous_period_debts_sum': '',
+            'cr_total_accured_contib_sum': '',
+            'cr_total_paid_contib_sum': '',
+            'cr_debt_sum': '',
         },
         custom_data=[
             df['region_code'],

@@ -103,7 +103,9 @@ REGIONS: tuple[str, ...] = (
     'Ярославская область',
 )
 
-DEFAULT_RADIO_ITEM: str = 'cpd_charged_sum'
+FIELDS_NAMES_CPD: list = ['cpd_charged_sum', 'cpd_already_payed_sum', 'cpd_previous_period_debts_sum']
+FIELDS_NAMES_CR: list = ['cr_total_accured_contib_sum', 'cr_total_paid_contib_sum', 'cr_debt_sum']
+RADIO_ITEM_STATS_CATEGORY = ['\tплатежи за ЖКУ', '\tкапремонт']
 
 ORG_ICON_PATH: str = os.path.normpath('assets/icons/org-icon.png')
 MKD_ICON_PATH: str = os.path.normpath('assets/icons/mkd-icon.png')
@@ -121,6 +123,9 @@ NEW_TER: pd.DataFrame = pd.DataFrame(
         'cpd_charged_sum': [0, 0, 0, 0],
         'cpd_already_payed_sum': [0, 0, 0, 0],
         'cpd_previous_period_debts_sum': [0, 0, 0, 0],
+        'cr_total_accured_contib_sum': [0, 0, 0, 0],
+        'cr_total_paid_contib_sum': [0, 0, 0, 0],
+        'cr_debt_sum': [0, 0, 0, 0],
     },
 )
 
