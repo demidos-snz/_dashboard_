@@ -1,7 +1,6 @@
 import calendar
 import locale
 import os
-import typing as t
 
 import pandas as pd
 

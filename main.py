@@ -11,10 +11,9 @@ from dash import Dash, html, dcc, Output, Input, State
 from get_data import df_all_data_from_client, df_with_filter
 from secrets_ import CONNECT_PARAMS
 from settings import (
-    DEFAULT_DROPDOWN_REGIONS_VALUE, REGIONS, DEFAULT_RADIO_ITEM,
-    ORG_ICON_PATH, MKD_ICON_PATH, JD_ICON_PATH,
-    MONTHS, BUTTON_STYLE, DEFAULT_DROPDOWN_REGIONS_PLACEHOLDER,
-    TITLE_APP,
+    DEFAULT_DROPDOWN_REGIONS_VALUE, REGIONS, ORG_ICON_PATH, MKD_ICON_PATH, JD_ICON_PATH,
+    MONTHS, DEFAULT_DROPDOWN_REGIONS_PLACEHOLDER,
+    TITLE_APP, FIELDS_NAMES_CR, FIELDS_NAMES_CPD, RADIO_ITEM_STATS_CATEGORY,
 )
 from utils import (
     get_geodata, b64_image, get_cpd_total_integer,
