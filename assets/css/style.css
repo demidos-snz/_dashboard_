@@ -14,20 +14,160 @@
 }
 
 body {
-    font-family: 'RobotoCondensed-Light', sans-serif;
+    font-family: RobotoCondensed-Light, sans-serif;
     color: rgba(13, 31, 62, 0.74);
 }
 
 h1 {
+    font-family: RobotoCondensed-Regular, sans-serif;
     text-align: center;
-    font-family: 'RobotoCondensed-Regular', sans-serif;
-    /*font_weight: 500;*/
     font_size: 1.5rem;
     word-break: break-word;
     color: #000;
 }
 
+h2 {
+    font-family: RobotoCondensed-Light, sans-serif;
+    font-size: 19px;
+    line-height: 1.15em;
+    font-weight: bold;
+    color: rgba(13, 31, 62, 0.74);
+}
+
 h3 {
-    font-family: 'RobotoCondensed-Light', sans-serif;
+    font-family: RobotoCondensed-Light, sans-serif;
     text-align: center;
+    margin-bottom: 20px;
+}
+
+#big_div {
+    position: relative;
+    max-width: 1200px;
+    margin-bottom: 30px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+#div_statistic_settings {
+    justify-content: left;
+    border-width: 2px;
+    border-color: rgb(186, 227, 242);
+    border-style: solid;
+    align-items: center;
+    height: 120px;
+}
+
+.all_russia_stats {
+    font-family: RobotoCondensed-Bold, sans-serif;
+    text-align: left;
+    font-size: 50px;
+    line-height: 1em;
+    font-weight: bold;
+    color: #2aa2cf;
+    padding-right: 15px
+}
+
+.all_russia_stats_text {
+    font-family: RobotoCondensed-Light, sans-serif;
+    font-size: 19px;
+    line-height: 1.15em;
+    font-weight: bold;
+    color: rgba(13, 31, 62, 0.74);
+}
+
+#dropdown_regions {
+    width: 300px;
+}
+
+#dropdown_years, #dropdown_months {
+    width: 250px;
+}
+
+#dropdown_years {
+    padding-bottom: 10px;
+}
+
+.panel_text {
+    font-family: RobotoCondensed-Light, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 1.3em;
+    color: #000;
+    align-items: center;
+}
+
+.panel_text, #radio_items {
+    padding-right: 23px;
+    padding-left: 23px;
+}
+
+.button {
+    font-family: RobotoCondensed-Light, sans-serif;
+    margin-right: 20px;
+    display: inline-block;
+    height: 36px;
+    color: #555;
+    text-align: center;
+    font-size: 11px;
+    line-height: 37px;
+    letter-spacing: 0.1rem;
+    text-transform: uppercase;
+    font-weight: bold;
+    text-decoration: none;
+    white-space: nowrap;
+    background-color: transparent;
+    border-radius: 4px;
+    border: 1px solid #bbb;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+#div_org_icon, #div_mkd_icon, #div_jd_icon {
+    height: 63px;
+}
+
+#radio_items_stats_category, #radio_items {
+    font-size: 16px;
+    color: #000;
+}
+
+#div_regions_list {
+    width: 300px;
+}
+
+#div_statistic_settings {
+    display: flex;
+}
+
+#region_name {
+    display: none;
+}
+
+#mkd_icon {
+    padding-right: 30px;
+    margin-bottom: 25px;
+}
+
+#org_icon {
+    padding-right: 20px;
+    margin-bottom: 30px;
+}
+
+#jd_icon {
+    padding-right: 25px;
+    margin-bottom: 25px;
+}
+
+#span_already_payed_sum_text, #div_previous_period_debts_sum_text {
+    padding-right: 15px;
+}
+
+#div_period_dropdowns, #div_radio_items {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.two_graphs_in_row {
+    display: flex;
 }

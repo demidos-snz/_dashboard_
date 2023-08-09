@@ -64,10 +64,6 @@ app.layout = html.Div(
         html.H1(
             id='label_dashboard',
             children='Мониторинг отрасли ЖКХ',
-            style={
-                'fontSize': '2.5rem',
-                'fontFamily': 'RobotoCondensed-Regular',
-            },
         ),
 
         html.Hr(),
@@ -79,24 +75,14 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.H2(
-                            children='Всего в системе:',
-                            style={
-                                'fontSize': '19px',
-                                'lineHeight': '1.15em',
-                                'fontWeight': 'bold',
-                                'color': 'rgba(13, 31, 62, 0.74)',
-                                'font-family': 'RobotoCondensed-Light',
-                            },
+                            id='header_for_russian_stats',
+                            children=f'Всего в системе ({RADIO_ITEM_STATS_CATEGORY[0]}):',
                         ),
 
                         html.Div(
                             [
                                 html.Img(
                                     src=b64_image(ORG_ICON_PATH),
-                                    style={
-                                        'padding-right': 20,
-                                        'margin-bottom': 30,
-                                    },
                                 ),
 
                                 html.Span(
@@ -105,43 +91,20 @@ app.layout = html.Div(
                                         df=df_grouped_by_regions_default,
                                         field_name='cpd_charged_sum',
                                     ),
-                                    style={
-                                        'textAlign': 'left',
-                                        'fontSize': '50px',
-                                        'lineHeight': '1em',
-                                        'fontWeight': 'bold',
-                                        'color': '#2aa2cf',
-                                        'fontFamily': 'RobotoCondensed-Bold',
-                                        'padding-right': 15,
-                                    },
                                 ),
 
                                 html.Span(
                                     id='span_charged_sum_text',
                                     children=f'начислено за {CURRENT_MONTH_FROM_DB} {CURRENT_YEAR_FROM_DB}',
-                                    style={
-                                        'fontSize': '19px',
-                                        'lineHeight': '1.15em',
-                                        'fontWeight': 'bold',
-                                        'color': 'rgba(13, 31, 62, 0.74)',
-                                        'fontFamily': 'RobotoCondensed-Light',
-                                    },
                                 ),
                             ],
                             id='div_org_icon',
-                            style={
-                                'height': '63px',
-                            },
                         ),
 
                         html.Div(
                             [
                                 html.Img(
                                     src=b64_image(MKD_ICON_PATH),
-                                    style={
-                                        'padding-right': 30,
-                                        'margin-bottom': 25,
-                                    },
                                 ),
 
                                 html.Span(
@@ -150,28 +113,12 @@ app.layout = html.Div(
                                         df=df_grouped_by_regions_default,
                                         field_name='cpd_already_payed_sum',
                                     ),
-                                    style={
-                                        'textAlign': 'left',
-                                        'fontSize': '50px',
-                                        'lineHeight': '1em',
-                                        'fontWeight': 'bold',
-                                        'color': '#2aa2cf',
-                                        'fontFamily': 'RobotoCondensed-Bold',
-                                        'padding-right': 15,
-                                    },
                                 ),
 
                                 html.Span(
                                     id='span_already_payed_sum_text',
                                     children=f'оплачено за {CURRENT_MONTH_FROM_DB} {CURRENT_YEAR_FROM_DB}',
-                                    style={
-                                        'fontSize': '19px',
-                                        'lineHeight': '1.15em',
-                                        'fontWeight': 'bold',
-                                        'color': 'rgba(13, 31, 62, 0.74)',
-                                        'fontFamily': 'RobotoCondensed-Light',
-                                        'padding-right': 15,
-                                    },
+
                                 ),
                             ],
                             id='div_mkd_icon',
@@ -184,10 +131,6 @@ app.layout = html.Div(
                             [
                                 html.Img(
                                     src=b64_image(JD_ICON_PATH),
-                                    style={
-                                        'padding-right': 25,
-                                        'margin-bottom': 25,
-                                    },
                                 ),
 
                                 html.Span(
@@ -196,15 +139,6 @@ app.layout = html.Div(
                                         df=df_grouped_by_regions_default,
                                         field_name='cpd_previous_period_debts_sum',
                                     ),
-                                    style={
-                                        'textAlign': 'left',
-                                        'fontSize': '50px',
-                                        'lineHeight': '1em',
-                                        'fontWeight': 'bold',
-                                        'color': '#2aa2cf',
-                                        'fontFamily': 'RobotoCondensed-Bold',
-                                        'padding-right': 15,
-                                    },
                                 ),
 
                                 html.Span(
@@ -222,13 +156,9 @@ app.layout = html.Div(
                                 ),
                             ],
                             id='div_jd_icon',
-                            style={
-                                'height': '63px',
-                            },
                         ),
                     ],
                     id='div_total_for_russia',
-                    style={'display': 'block'}
                 ),
 
                 html.Div(
@@ -240,9 +170,6 @@ app.layout = html.Div(
                         placeholder=DEFAULT_DROPDOWN_REGIONS_PLACEHOLDER,
                     ),
                     id='div_regions_list',
-                    style={
-                        'width': '300px',
-                    },
                 ),
 
                 html.Div(
@@ -266,15 +193,7 @@ app.layout = html.Div(
                             [
                                 html.Span(
                                     children='Выбрать период:',
-                                    style={
-                                        'padding-right': 20,
-                                        'fontSize': '16px',
-                                        'fontFamily': 'RobotoCondensed-Light',
-                                        'lineHeight': '1.3em',
-                                        'fontWeight': 'bold',
-                                        'color': 'black',
-                                        'margin-left': '80px',
-                                    },
+                                    className='panel_text',
                                 ),
 
                                 html.Div(
@@ -288,10 +207,6 @@ app.layout = html.Div(
                                                 value=CURRENT_YEAR_FROM_DB,
                                                 clearable=False,
                                             ),
-                                            style={
-                                                'width': '250px',
-                                                'margin-bottom': 5,
-                                            },
                                         ),
 
                                         html.Div(
@@ -303,40 +218,24 @@ app.layout = html.Div(
                                                 value=CURRENT_MONTH_FROM_DB.title(),
                                                 clearable=False,
                                             ),
-                                            style={
-                                                'width': '250px',
-                                                'margin-bottom': 5,
-                                            },
                                         ),
                                     ],
-                                    id='div_period_dropdowns',
-                                    style={
-                                        'display': 'block',
-                                    },
                                 ),
                             ],
-                            style={
-                                'display': 'flex',
-                                'justify-content': 'left',
-                                'alignItems': 'center',
-                                'height': 100,
-                                'margin-right': 50,
-                            },
+                            id='div_period_dropdowns',
                         ),
 
                         html.Div(
                             [
                                 html.Span(
-                                    children='Отображать статистику:',
-                                    style={
-                                        'fontSize': '16px',
-                                        'margin-right': '20px',
-                                        'lineHeight': '1.3em',
-                                        'fontWeight': 'bold',
-                                        'color': 'black',
-                                        'fontFamily': 'RobotoCondensed-Light',
-                                        'alignItems': 'center',
-                                    },
+                                    children='Отображать на карте статистику:',
+                                    className='panel_text',
+                                ),
+
+                                dcc.RadioItems(
+                                    id='radio_items_stats_category',
+                                    options=RADIO_ITEM_STATS_CATEGORY,
+                                    value=RADIO_ITEM_STATS_CATEGORY[0],
                                 ),
 
                                 dcc.RadioItems(
@@ -346,12 +245,7 @@ app.layout = html.Div(
                                         'cpd_already_payed_sum': '\tпо оплате',
                                         'cpd_previous_period_debts_sum': '\tпо задолженности',
                                     },
-                                    value=DEFAULT_RADIO_ITEM,
-                                    style={
-                                        'width': '200px',
-                                        'fontSize': '14px',
-                                        'color': 'black',
-                                    },
+                                    value=FIELDS_NAMES_CPD[0],
                                 ),
                             ],
                             id='div_radio_items',
@@ -366,6 +260,7 @@ app.layout = html.Div(
                         html.Button(
                             children='Обновить данные на карте',
                             id='update_map_data',
+                            className='button',
                             n_clicks=0,
                             style=BUTTON_STYLE,
                         ),
