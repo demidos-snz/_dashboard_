@@ -132,9 +132,6 @@ app.layout = html.Div(
                                 ),
                             ],
                             id='div_mkd_icon',
-                            style={
-                                'height': '63px',
-                            },
                         ),
 
                         html.Div(
@@ -182,12 +179,12 @@ app.layout = html.Div(
                         config={
                             'scrollZoom': False,
                             'displayModeBar': False,
+                            # 'doubleClick': 'reset'
                         },
                     ),
                     id='div_map',
                     style={
                         'visibility': 'hidden',
-                        'display': 'block',
                     },
                 ),
 
@@ -205,9 +202,7 @@ app.layout = html.Div(
                                         html.Div(
                                             dcc.Dropdown(
                                                 id='dropdown_years',
-                                                options=[
-                                                    {'label': x, 'value': x} for x in ALL_YEARS_FROM_DB
-                                                ],
+                                                options=ALL_YEARS_FROM_DB,
                                                 value=CURRENT_YEAR_FROM_DB,
                                                 clearable=False,
                                             ),
@@ -216,9 +211,7 @@ app.layout = html.Div(
                                         html.Div(
                                             dcc.Dropdown(
                                                 id='dropdown_months',
-                                                options=[
-                                                    {'label': x, 'value': x} for x in MONTHS
-                                                ],
+                                                options=MONTHS,
                                                 value=CURRENT_MONTH_FROM_DB.title(),
                                                 clearable=False,
                                             ),
@@ -253,12 +246,6 @@ app.layout = html.Div(
                                 ),
                             ],
                             id='div_radio_items',
-                            style={
-                                'display': 'flex',
-                                'justify-content': 'left',
-                                'alignItems': 'center',
-                                'height': 100,
-                            },
                         ),
 
                         html.Button(
@@ -266,26 +253,13 @@ app.layout = html.Div(
                             id='update_map_data',
                             className='button',
                             n_clicks=0,
-                            style=BUTTON_STYLE,
                         ),
                     ],
                     id='div_statistic_settings',
-                    style={
-                        'display': 'flex',
-                        'justify-content': 'left',
-                        'borderWidth': 2,
-                        'borderColor': 'rgb(186, 227, 242)',
-                        'borderStyle': 'solid',
-                        'alignItems': 'center',
-                        'height': 100,
-                    },
                 ),
 
                 html.H3(
                     id='region_name',
-                    style={
-                        'display': 'none',
-                    }
                 ),
 
                 html.Div(
@@ -325,55 +299,8 @@ app.layout = html.Div(
                     },
                 ),
 
-                # html.Div(
-                #     [
-                #         html.Div(
-                #             dcc.Graph(
-                #                 id='graph_cr_charges_sum',
-                #                 config={
-                #                     'scrollZoom': False,
-                #                     'displayModeBar': False,
-                #                 },
-                #             ),
-                #             id='div_cr_charges_sum',
-                #             style={
-                #                 'display': 'none',
-                #                 'textAlign': 'center',
-                #             },
-                #         ),
-                #
-                #         html.Div(
-                #             dcc.Graph(
-                #                 id='graph_cr_payed_sum',
-                #                 config={
-                #                     'scrollZoom': False,
-                #                     'displayModeBar': False,
-                #                 },
-                #             ),
-                #             id='div_cr_payed_sum',
-                #             style={
-                #                 'display': 'none',
-                #             },
-                #         ),
-                #     ],
-                #     style={
-                #         'display': 'flex',
-                #     }
-                # ),
-
                 html.Div(
                     [
-                        html.H2(
-                            children='Собираемость взносов на счете регионального оператора за 2023 год:',
-                            style={
-                                'fontSize': '19px',
-                                'lineHeight': '1.15em',
-                                'fontWeight': 'bold',
-                                'color': 'rgba(13, 31, 62, 0.74)',
-                                'font-family': 'RobotoCondensed-Light',
-                            },
-                        ),
-
                         html.Div(
                             [
                                 dcc.Graph(
@@ -409,13 +336,7 @@ app.layout = html.Div(
             ],
         ),
     ],
-    style={
-        'position': 'relative',
-        'maxWidth': '1200px',
-        'margin-bottom': 30,
-        'margin-right': 'auto',
-        'margin-left': 'auto',
-    },
+    id='big_div'
 )
 
 
