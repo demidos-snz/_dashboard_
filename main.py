@@ -429,10 +429,14 @@ app.layout = html.Div(
 
         Output(component_id='dropdown_years', component_property='value'),
         Output(component_id='dropdown_months', component_property='value'),
+        Output(component_id='radio_items', component_property='options'),
+        Output(component_id='radio_items', component_property='value'),
+        Output(component_id='header_for_russian_stats', component_property='children'),
     ],
     Input(component_id='update_map_data', component_property='n_clicks'),
     [
         State(component_id='radio_items', component_property='value'),
+        State(component_id='radio_items_stats_category', component_property='value'),
         State(component_id='dropdown_years', component_property='value'),
         State(component_id='dropdown_months', component_property='value'),
         State(component_id='modal_backdrop', component_property='is_open'),
@@ -442,7 +446,8 @@ def display_map(click: int, value: str, year: int, month: str, ip_open: bool) ->
     bool, go.Figure, dict[str, str],
     str, str, str,
     str, str, str,
-    int, str,
+    int, str, dict,
+    str, str
 ]:
     month_int: int = convert_month_from_dashboard_to_int(month=month)
 
@@ -453,6 +458,15 @@ def display_map(click: int, value: str, year: int, month: str, ip_open: bool) ->
     else:
         month: str = month.lower()
         df_grouped_by_regions: pd.DataFrame = df_with_filter(df=df_all, year=year, month=month_int)
+
+    if stats_category_value == RADIO_ITEM_STATS_CATEGORY[0]:
+        field_names = FIELDS_NAMES_CPD
+        if not value.startswith('cpd'):
+            value = FIELDS_NAMES_CPD[FIELDS_NAMES_CR.index(value)]
+    else:
+        field_names = FIELDS_NAMES_CR
+        if not value.startswith('cr'):
+            value = FIELDS_NAMES_CR[FIELDS_NAMES_CPD.index(value)]
 
     fig: go.Figure = get_map(df=df_grouped_by_regions, value=value)
 
@@ -465,7 +479,7 @@ def display_map(click: int, value: str, year: int, month: str, ip_open: bool) ->
         get_cpd_total_integer(df=df_grouped_by_regions, field_name=field_names[2]),
         f'начислено за {month} {year}',
         f'оплачено за {month} {year}',
-        f'дебиторская задолженность за {month} {year}',
+        f'задолженность за {month} {year}',
         year,
         month.title(),
         {field_names[0]: '\tпо начислениям',
@@ -577,49 +591,38 @@ def get_map(df: pd.DataFrame, value: str) -> go.Figure:
         Output(component_id='div_statistic_settings', component_property='style', allow_duplicate=True),
 
         Output(component_id='graph_charges_sum', component_property='figure', allow_duplicate=True),
-        Output(component_id='div_charges_sum', component_property='style', allow_duplicate=True),
         Output(component_id='graph_already_payed_sum', component_property='figure', allow_duplicate=True),
-        Output(component_id='div_already_payed_sum', component_property='style', allow_duplicate=True),
         Output(component_id='graph_debts_sum', component_property='figure', allow_duplicate=True),
-        Output(component_id='div_debts_sum', component_property='style', allow_duplicate=True),
-        # Output(component_id='graph_cr_charges_sum', component_property='figure', allow_duplicate=True),
-        # Output(component_id='div_cr_charges_sum', component_property='style', allow_duplicate=True),
-        # Output(component_id='graph_cr_payed_sum', component_property='figure', allow_duplicate=True),
-        # Output(component_id='div_cr_payed_sum', component_property='style', allow_duplicate=True),
-        Output(component_id='div_cr_total_for_russia', component_property='style', allow_duplicate=True),
+        Output(component_id='graph_cr_charges_sum', component_property='figure', allow_duplicate=True),
+        Output(component_id='graph_cr_payed_sum', component_property='figure', allow_duplicate=True),
+        Output(component_id='graph_sunburst', component_property='figure', allow_duplicate=True),
+
+        Output(component_id='div_payment_service', component_property='style', allow_duplicate=True),
+        Output(component_id='div_capital_repair', component_property='style', allow_duplicate=True),
 
         Output(component_id='div_regions_list', component_property='style', allow_duplicate=True),
-
         Output(component_id='region_name', component_property='children', allow_duplicate=True),
         Output(component_id='region_name', component_property='style', allow_duplicate=True),
-
-        Output(component_id='span_cr_charged_sum', component_property='children', allow_duplicate=True),
-        Output(component_id='span_cr_payed_sum', component_property='children', allow_duplicate=True),
-        Output(component_id='span_cr_debts_sum', component_property='children', allow_duplicate=True),
-
-        Output(component_id='graph_sunburst', component_property='figure', allow_duplicate=True),
-        Output(component_id='div_sunburst', component_property='style', allow_duplicate=True),
     ],
     Input(component_id='map', component_property='clickData'),
+    State(component_id='radio_items_stats_category', component_property='value'),
     prevent_initial_call=True,
 )
-def hide_map_by_click_map(clickData: dict[str, list[dict[str, t.Any]]]) -> tuple[
+def hide_map_by_click_map(clickData: dict[str, list[dict[str, t.Any]]], state_category_value: str) -> tuple[
     html.Button, dict[str, str],
     dict[str, str], dict[str, str], dict[str, str],
-    go.Figure, dict[str, str],
-    go.Figure, dict[str, str],
-    go.Figure, dict[str, str],
-    # go.Figure, dict[str, str],
-    # go.Figure, dict[str, str],
-    dict[str, str],
+    go.Figure,
+    go.Figure,
+    go.Figure,
+    go.Figure,
+    go.Figure,
+    go.Figure,
+    dict[str, str], dict[str, str],
     dict[str, str], str, dict[str, str],
-    str, str, str,
-    go.Figure, dict[str, str],
 ]:
     if clickData is not None:
         region: str = clickData['points'][0]['hovertext']
-
-        return ggg(df=df_all, region=region, x_axis=X_AXIS)
+        return ggg(df=df_all, region=region, x_axis=X_AXIS, value=state_category_value)
 
 
 @app.callback(
@@ -632,46 +635,36 @@ def hide_map_by_click_map(clickData: dict[str, list[dict[str, t.Any]]]) -> tuple
         Output(component_id='div_statistic_settings', component_property='style', allow_duplicate=True),
 
         Output(component_id='graph_charges_sum', component_property='figure', allow_duplicate=True),
-        Output(component_id='div_charges_sum', component_property='style', allow_duplicate=True),
         Output(component_id='graph_already_payed_sum', component_property='figure', allow_duplicate=True),
-        Output(component_id='div_already_payed_sum', component_property='style', allow_duplicate=True),
         Output(component_id='graph_debts_sum', component_property='figure', allow_duplicate=True),
-        Output(component_id='div_debts_sum', component_property='style', allow_duplicate=True),
-        # Output(component_id='graph_cr_charges_sum', component_property='figure', allow_duplicate=True),
-        # Output(component_id='div_cr_charges_sum', component_property='style', allow_duplicate=True),
-        # Output(component_id='graph_cr_payed_sum', component_property='figure', allow_duplicate=True),
-        # Output(component_id='div_cr_payed_sum', component_property='style', allow_duplicate=True),
-        Output(component_id='div_cr_total_for_russia', component_property='style', allow_duplicate=True),
+        Output(component_id='graph_cr_charges_sum', component_property='figure', allow_duplicate=True),
+        Output(component_id='graph_cr_payed_sum', component_property='figure', allow_duplicate=True),
+        Output(component_id='graph_sunburst', component_property='figure', allow_duplicate=True),
+
+        Output(component_id='div_payment_service', component_property='style', allow_duplicate=True),
+        Output(component_id='div_capital_repair', component_property='style', allow_duplicate=True),
 
         Output(component_id='div_regions_list', component_property='style', allow_duplicate=True),
-
         Output(component_id='region_name', component_property='children', allow_duplicate=True),
         Output(component_id='region_name', component_property='style', allow_duplicate=True),
-
-        Output(component_id='span_cr_charged_sum', component_property='children', allow_duplicate=True),
-        Output(component_id='span_cr_payed_sum', component_property='children', allow_duplicate=True),
-        Output(component_id='span_cr_debts_sum', component_property='children', allow_duplicate=True),
-
-        Output(component_id='graph_sunburst', component_property='figure', allow_duplicate=True),
-        Output(component_id='div_sunburst', component_property='style', allow_duplicate=True),
     ],
     Input(component_id='dropdown_regions', component_property='value'),
+    State(component_id='radio_items_stats_category', component_property='value'),
     prevent_initial_call=True,
 )
-def hide_map_by_dropdown_region(region: str) -> tuple[
+def hide_map_by_dropdown_region(region: str, state_category_value: str) -> tuple[
     html.Button, dict[str, str],
     dict[str, str], dict[str, str], dict[str, str],
-    go.Figure, dict[str, str],
-    go.Figure, dict[str, str],
-    go.Figure, dict[str, str],
-    # go.Figure, dict[str, str],
-    # go.Figure, dict[str, str],
-    dict[str, str],
+    go.Figure,
+    go.Figure,
+    go.Figure,
+    go.Figure,
+    go.Figure,
+    go.Figure,
+    dict[str, str], dict[str, str],
     dict[str, str], str, dict[str, str],
-    str, str, str,
-    go.Figure, dict[str, str],
 ]:
-    return ggg(df=df_all, region=region, x_axis=X_AXIS)
+    return ggg(df=df_all, region=region, x_axis=X_AXIS, value=state_category_value)
 
 
 @app.callback(
@@ -682,17 +675,11 @@ def hide_map_by_dropdown_region(region: str) -> tuple[
         Output(component_id='div_map', component_property='style', allow_duplicate=True),
         Output(component_id='div_statistic_settings', component_property='style', allow_duplicate=True),
 
-        Output(component_id='div_charges_sum', component_property='style', allow_duplicate=True),
-        Output(component_id='div_already_payed_sum', component_property='style', allow_duplicate=True),
-        Output(component_id='div_debts_sum', component_property='style', allow_duplicate=True),
-        Output(component_id='div_cr_total_for_russia', component_property='style', allow_duplicate=True),
-        # Output(component_id='div_cr_charges_sum', component_property='style', allow_duplicate=True),
-        # Output(component_id='div_cr_payed_sum', component_property='style', allow_duplicate=True),
+        Output(component_id='div_payment_service', component_property='style', allow_duplicate=True),
+        Output(component_id='div_capital_repair', component_property='style', allow_duplicate=True),
+
         Output(component_id='div_regions_list', component_property='style', allow_duplicate=True),
-
         Output(component_id='region_name', component_property='style', allow_duplicate=True),
-
-        Output(component_id='div_sunburst', component_property='style', allow_duplicate=True),
     ],
     Input(component_id='back_to_map', component_property='n_clicks'),
     prevent_initial_call=True,
@@ -700,44 +687,20 @@ def hide_map_by_dropdown_region(region: str) -> tuple[
 def back_to_map(n_clicks: int) -> tuple[
     dict[str, str],
     dict[str, str], dict[str, t.Any], dict[str, str],
-    dict[str, str], dict[str, str], dict[str, str],
     dict[str, str], dict[str, str],
-    # dict[str, str], dict[str, str],
-    dict[str, str],
-    dict[str, str],
+    dict[str, str], dict[str, str],
 ]:
     return (
         {'display': 'none'},
 
         {'display': 'block'},
         {'display': 'block'},
-        {
-            'display': 'flex',
-            'justify-content': 'left',
-            'borderWidth': 2,
-            'borderColor': 'rgb(186, 227, 242)',
-            'borderStyle': 'solid',
-            'alignItems': 'center',
-            'padding': 10,
-            'height': 100,
-        },
+        {'display': 'flex'},
 
         {'display': 'none'},
         {'display': 'none'},
-        {'display': 'none'},
-        {'display': 'none'},
-        # {'display': 'none'},
-        # {'display': 'none'},
-        {
-            'display': 'block',
-            'width': '300px',
-        },
 
-        {
-            'display': 'none',
-            'width': '300px',
-        },
-
+        {'display': 'block'},
         {'display': 'none'},
     )
 

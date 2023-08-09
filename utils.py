@@ -45,19 +45,18 @@ def make_human_readable_data(column: pd.Series) -> list[str]:
 
 
 # fixme naming + args df
-def ggg(df: pd.DataFrame, region: str, x_axis: tuple[str]) -> tuple[
+def ggg(df: pd.DataFrame, region: str, x_axis: tuple[str], value: str) -> tuple[
     html.Button, dict[str, str],
     dict[str, str], dict[str, str],  dict[str, str],
-    go.Figure, dict[str, str],
-    go.Figure, dict[str, str],
-    go.Figure, dict[str, str],
-    # go.Figure, dict[str, str],
-    # go.Figure, dict[str, str],
-    dict[str, str],
+    go.Figure,
+    go.Figure,
+    go.Figure,
+    go.Figure,
+    go.Figure,
+    go.Figure,
+    dict[str, str], dict[str, str],
     dict[str, str],
     str, dict[str, str],
-    str, str, str,
-    go.Figure, dict[str, str],
 ]:
     # fixme year
     df_2022 = df[(df['year'] == 2022) & (df['region_name'] == region)]
@@ -67,74 +66,69 @@ def ggg(df: pd.DataFrame, region: str, x_axis: tuple[str]) -> tuple[
     fig1 = get_figure1(df=df, x_axis=x_axis)
     fig2 = get_figure2(df=df, x_axis=x_axis)
     fig3 = get_figure3(df=df, x_axis=x_axis)
-    # fig4 = get_figure4(df=df, x_axis=x_axis)
-    # fig5 = get_figure5(df=df, x_axis=x_axis)
+    fig4 = get_figure4(df=df, x_axis=x_axis)
+    fig5 = get_figure5(df=df, x_axis=x_axis)
 
     fig_sunburst: go.Figure = get_sunburst(df=get_region_data_for_sunburst(region=region))
 
-    span_cr_charged_sum_value: str = get_cr_total_integer(
-        df=df,
-        field_name='cr_total_accured_contib_sum_y',
-        region=region,
-    )
+    if value == RADIO_ITEM_STATS_CATEGORY[0]:
+        return (
+            html.Button(
+                children='Вернуться на карту',
+                id='button_back_to_map',
+                className='button',
+                n_clicks=0,
+            ),
+            {'display': 'block'},
 
-    span_cr_payed_sum: str = get_cr_total_integer(
-        df=df,
-        field_name='cr_total_paid_contib_sum_y',
-        region=region,
-    )
+            {'display': 'none'},
+            {'display': 'none'},
+            {'display': 'none'},
 
-    span_cr_debts_sum: str = get_cr_total_integer(
-        df=df,
-        field_name='cr_debt_sum_y',
-        region=region,
-    )
+            fig1,
+            fig2,
+            fig3,
+            fig4,
+            fig5,
+            fig_sunburst,
 
-    return (
-        html.Button(
-            children='Вернуться на карту',
-            id='button_back_to_map',
-            n_clicks=0,
-            style=BUTTON_STYLE,
-        ),
-        {'display': 'block'},
+            {'display': 'block'},
+            {'display': 'none'},
 
-        {'display': 'none'},
-        {'display': 'none'},
-        {'display': 'none'},
+            {'display': 'none'},
 
-        fig1,
-        {'display': 'block'},
-        fig2,
-        {'display': 'block'},
-        fig3,
-        {'display': 'block'},
-        # fig4,
-        # {'display': 'block'},
-        # fig5,
-        # {'display': 'block'},
-        {
-            'display': 'block',
-            'position': 'relative',
-            'padding-left': 70,
-        },
+            region,
+            {'display': 'block'},
+        )
+    else:
+        return (
+            html.Button(
+                children='Вернуться на карту',
+                id='button_back_to_map',
+                className='button',
+                n_clicks=0,
+            ),
+            {'display': 'block'},
 
-        {'display': 'none'},
+            {'display': 'none'},
+            {'display': 'none'},
+            {'display': 'none'},
 
-        region,
-        {
-            'display': 'block',
-            'textAlign': 'center',
-            'margin-bottom': 20,
-        },
+            fig1,
+            fig2,
+            fig3,
+            fig4,
+            fig5,
+            fig_sunburst,
 
-        span_cr_charged_sum_value,
-        span_cr_payed_sum,
-        span_cr_debts_sum,
+            {'display': 'none'},
+            {'display': 'block'},
 
-        fig_sunburst,
-        {'display': 'block'},
-    )
+            {'display': 'none'},
+
+            region,
+            {'display': 'block'},
+        )
 
 
 # fixme name
