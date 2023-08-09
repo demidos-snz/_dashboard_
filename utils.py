@@ -258,6 +258,106 @@ def get_figure3(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
         },
     )
 
+def get_figure4(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
+    fig = px.line(
+        x=x_axis,
+        y=df['cr_total_accured_contib_sum_x'],
+        color=px.Constant('2022 год'),
+        labels=dict(x='', y='', color='Год'),
+    )
+
+    fig.update_traces(
+        line_color='rgb(176, 101, 194)',
+        line_width=3,
+        hovertemplate='<br>'.join(['Начислено %{y}']),
+    )
+    fig.add_bar(x=x_axis, y=df['cr_total_accured_contib_sum_y'], name='2023 год')
+    fig.update_traces(
+        marker_color='rgb(61, 165, 226)',
+        customdata=np.transpose(df['cr_total_accured_contib_sum_y']),
+        hovertemplate='<br>'.join(['Начислено %{y}']),
+    )
+    fig.update_layout(
+        title='Начисление взносов за капительный ремонт, руб.',
+        title_x=0.5,
+        hovermode='x unified',
+        width=600,
+        height=500,
+        hoverlabel={
+            'bordercolor': 'white',
+            'font_family': 'Helvetica',
+            'font_size': 16,
+        },
+    )
+    return fig
+
+
+def get_figure5(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
+    fig = px.line(
+        x=x_axis,
+        y=df['cr_total_paid_contib_sum_x'],
+        color=px.Constant('2022 год'),
+        labels=dict(x='', y='', color='Год'),
+    )
+
+    fig.update_traces(
+        line_color='rgb(176, 101, 194)',
+        line_width=3,
+        hovertemplate='<br>'.join(['Оплачено %{y}']),
+    )
+    fig.add_bar(x=x_axis, y=df['cr_total_paid_contib_sum_y'], name='2023 год')
+    fig.update_traces(
+        marker_color='rgb(61, 165, 226)',
+        hovertemplate='<br>'.join(['Оплачено %{y}']),
+    )
+    fig.update_layout(
+        title='Сбор взносов за капитальный ремонт, руб.',
+        title_x=0.5,
+        hovermode='x unified',
+        width=600,
+        height=500,
+        hoverlabel={
+            'bordercolor': 'white',
+            'font_family': 'Helvetica',
+            'font_size': 16,
+        },
+    )
+    return fig
+
+
+def get_sunburst(df: pd.DataFrame) -> go.Figure:
+    fig = px.sunburst(
+        data_frame=df,
+        names='categories',
+        parents='parent',
+        values='value',
+        branchvalues='remainder',
+        custom_data=[
+            df['categories'],
+            make_human_readable_data(column=df['value'])
+        ],
+    )
+
+    hovertemp: str = '<b>%{customdata[0]} - %{customdata[1]} руб.'
+
+    fig.update_layout(
+        title=dict(
+            text='Исполнение краткосрочных планов за 2023 год по видам работ',
+            font=dict(size=25, family='RobotoCondensed-Regular', color='rgba(13, 31, 62, 0.74)'),
+        ),
+        title_x=0.5,
+        hoverlabel={
+            'font_size': 20,
+            'font_family': 'Helvetica',
+        },
+        legend_orientation="h",
+        height=900,
+        # uniformtext=dict(minsize=14, mode='hide')
+    )
+    fig.update_traces(
+        hovertemplate=hovertemp,
+        marker={'line': {'width': 2}},
+    )
     return fig
 
 

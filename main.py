@@ -287,48 +287,35 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.Div(
-                            dcc.Graph(
-                                id='graph_charges_sum',
-                                config={
-                                    'scrollZoom': False,
-                                    'displayModeBar': False,
-                                },
-                            ),
-                            id='div_charges_sum',
-                            style={
-                                'display': 'none',
-                                'textAlign': 'center',
-                            },
+                            [
+                                dcc.Graph(
+                                    id='graph_charges_sum',
+                                    config={
+                                        'scrollZoom': False,
+                                        'displayModeBar': False,
+                                    },
+                                ),
+
+                                dcc.Graph(
+                                    id='graph_already_payed_sum',
+                                    config={
+                                        'scrollZoom': False,
+                                        'displayModeBar': False,
+                                    },
+                                ),
+                            ],
+                            className='two_graphs_in_row',
                         ),
 
-                        html.Div(
-                            dcc.Graph(
-                                id='graph_already_payed_sum',
-                                config={
-                                    'scrollZoom': False,
-                                    'displayModeBar': False,
-                                },
-                            ),
-                            id='div_already_payed_sum',
-                            style={
-                                'display': 'none',
+                        dcc.Graph(
+                            id='graph_debts_sum',
+                            config={
+                                'scrollZoom': False,
+                                'displayModeBar': False,
                             },
                         ),
                     ],
-                    style={
-                        'display': 'flex',
-                    }
-                ),
-
-                html.Div(
-                    dcc.Graph(
-                        id='graph_debts_sum',
-                        config={
-                            'scrollZoom': False,
-                            'displayModeBar': False,
-                        },
-                    ),
-                    id='div_debts_sum',
+                    id='div_payment_service',
                     style={
                         'display': 'none',
                     },
@@ -385,125 +372,36 @@ app.layout = html.Div(
 
                         html.Div(
                             [
-                                html.Span(
-                                    id='span_cr_charged_sum',
-                                    style={
-                                        'textAlign': 'left',
-                                        'fontSize': '50px',
-                                        'lineHeight': '1em',
-                                        'fontWeight': 'bold',
-                                        'color': '#2aa2cf',
-                                        'fontFamily': 'RobotoCondensed-Bold',
-                                        'padding-right': 15,
+                                dcc.Graph(
+                                    id='graph_cr_charges_sum',
+                                    config={
+                                        'scrollZoom': False,
+                                        'displayModeBar': False,
                                     },
                                 ),
 
-                                html.Span(
-                                    id='span_cr_charged_sum_text',
-                                    children=f'начислено взносов с начала {CURRENT_YEAR_FROM_DB} года',
-                                    style={
-                                        'fontSize': '19px',
-                                        'lineHeight': '1.15em',
-                                        'fontWeight': 'bold',
-                                        'color': 'rgba(13, 31, 62, 0.74)',
-                                        'fontFamily': 'RobotoCondensed-Light',
+                                dcc.Graph(
+                                    id='graph_cr_payed_sum',
+                                    config={
+                                        'scrollZoom': False,
+                                        'displayModeBar': False,
                                     },
                                 ),
                             ],
-                            id='div_cr_charges_total',
-                            style={
-                                'height': '63px',
-                            },
+                            className='two_graphs_in_row',
                         ),
 
-                        html.Div(
-                            [
-                                html.Span(
-                                    id='span_cr_payed_sum',
-                                    style={
-                                        'textAlign': 'left',
-                                        'fontSize': '50px',
-                                        'lineHeight': '1em',
-                                        'fontWeight': 'bold',
-                                        'color': '#2aa2cf',
-                                        'fontFamily': 'RobotoCondensed-Bold',
-                                        'padding-right': 15,
-                                    },
-                                ),
-
-                                html.Span(
-                                    id='span_cr_payed_sum_text',
-                                    children=f'оплачено взносов с начала {CURRENT_YEAR_FROM_DB} года',
-                                    style={
-                                        'fontSize': '19px',
-                                        'lineHeight': '1.15em',
-                                        'fontWeight': 'bold',
-                                        'color': 'rgba(13, 31, 62, 0.74)',
-                                        'fontFamily': 'RobotoCondensed-Light',
-                                        'padding-right': 15,
-                                    },
-                                ),
-                            ],
-                            id='div_cr_payed_total',
-                            style={
-                                'height': '63px',
-                            },
-                        ),
-
-                        html.Div(
-                            [
-                                html.Span(
-                                    id='span_cr_debts_sum',
-                                    style={
-                                        'textAlign': 'left',
-                                        'fontSize': '50px',
-                                        'lineHeight': '1em',
-                                        'fontWeight': 'bold',
-                                        'color': '#2aa2cf',
-                                        'fontFamily': 'RobotoCondensed-Bold',
-                                        'padding-right': 15,
-                                    },
-                                ),
-
-                                html.Span(
-                                    id='div_cr_debts_sum_text',
-                                    children=f'задолженность по уплате взносов за {CURRENT_YEAR_FROM_DB} год',
-                                    style={
-                                        'fontSize': '19px',
-                                        'lineHeight': '1.15em',
-                                        'fontWeight': 'bold',
-                                        'color': 'rgba(13, 31, 62, 0.74)',
-                                        'fontFamily': 'RobotoCondensed-Light',
-                                        'padding-right': 15,
-                                    },
-                                ),
-                            ],
-                            id='div_cr_debt_total',
-                            style={
-                                'height': '63px',
+                        dcc.Graph(
+                            id='graph_sunburst',
+                            config={
+                                'scrollZoom': False,
+                                'displayModeBar': False,
                             },
                         ),
                     ],
-                    id='div_cr_total_for_russia',
-                    style={
-                        'display': 'none',
-                        'position': 'relative',
-                        'padding-left': 200,
-                    },
-                ),
-                html.Div(
-                    dcc.Graph(
-                        id='graph_sunburst',
-                        config={
-                            'scrollZoom': False,
-                            'displayModeBar': False,
-                        },
-                    ),
-                    id='div_sunburst',
-                    style={
-                        'display': 'none',
-                    },
-                ),
+                    id='div_capital_repair',
+                    style={'display': 'none'},
+                )
             ],
         ),
     ],
