@@ -366,7 +366,7 @@ app.layout = html.Div(
         State(component_id='modal_backdrop', component_property='is_open'),
     ],
 )
-def display_map(click: int, value: str, year: int, month: str, ip_open: bool) -> tuple[
+def display_map(click: int, value: str, stats_category_value: str, year: int, month: str, ip_open: bool) -> tuple[
     bool, go.Figure, dict[str, str],
     str, str, str,
     str, str, str,
@@ -436,6 +436,7 @@ def display_map(click: int, value: str, year: int, month: str, ip_open: bool) ->
         Output(component_id='div_regions_list', component_property='style', allow_duplicate=True),
         Output(component_id='region_name', component_property='children', allow_duplicate=True),
         Output(component_id='region_name', component_property='style', allow_duplicate=True),
+        Output(component_id='dropdown_regions', component_property='value', allow_duplicate=True),
     ],
     Input(component_id='map', component_property='clickData'),
     State(component_id='radio_items_stats_category', component_property='value'),
@@ -452,10 +453,15 @@ def hide_map_by_click_map(clickData: dict[str, list[dict[str, t.Any]]], state_ca
     go.Figure,
     dict[str, str], dict[str, str],
     dict[str, str], str, dict[str, str],
+    str
 ]:
     if clickData is not None:
         region: str = clickData['points'][0]['hovertext']
-        return ggg(df=df_all, region=region, x_axis=X_AXIS, value=state_category_value)
+        return show_charts_with_region_selection(df=df_all,
+                                                 region=region,
+                                                 x_axis=X_AXIS,
+                                                 value=state_category_value,
+                                                 new_region_value=region)
 
 
 @app.callback(
@@ -480,6 +486,7 @@ def hide_map_by_click_map(clickData: dict[str, list[dict[str, t.Any]]], state_ca
         Output(component_id='div_regions_list', component_property='style', allow_duplicate=True),
         Output(component_id='region_name', component_property='children', allow_duplicate=True),
         Output(component_id='region_name', component_property='style', allow_duplicate=True),
+        Output(component_id='dropdown_regions', component_property='value', allow_duplicate=True),
     ],
     Input(component_id='dropdown_regions', component_property='value'),
     State(component_id='radio_items_stats_category', component_property='value'),
@@ -496,8 +503,13 @@ def hide_map_by_dropdown_region(region: str, state_category_value: str) -> tuple
     go.Figure,
     dict[str, str], dict[str, str],
     dict[str, str], str, dict[str, str],
+    str
 ]:
-    return ggg(df=df_all, region=region, x_axis=X_AXIS, value=state_category_value)
+    return show_charts_with_region_selection(df=df_all,
+                                             region=region,
+                                             x_axis=X_AXIS,
+                                             value=state_category_value,
+                                             new_region_value='')
 
 
 @app.callback(

@@ -58,8 +58,11 @@ def make_human_readable_data(column: pd.Series) -> list[str]:
     return ['{:,}'.format(i).replace(',', ' ') for i in column]
 
 
-# fixme naming + args df
-def ggg(df: pd.DataFrame, region: str, x_axis: tuple[str], value: str) -> tuple[
+def show_charts_with_region_selection(df: pd.DataFrame,
+                                      region: str,
+                                      x_axis: tuple[str],
+                                      value: str,
+                                      new_region_value: str) -> tuple[
     html.Button, dict[str, str],
     dict[str, str], dict[str, str],  dict[str, str],
     go.Figure,
@@ -71,6 +74,7 @@ def ggg(df: pd.DataFrame, region: str, x_axis: tuple[str], value: str) -> tuple[
     dict[str, str], dict[str, str],
     dict[str, str],
     str, dict[str, str],
+    str
 ]:
     # fixme year
     df_2022 = df[(df['year'] == 2022) & (df['region_name'] == region)]
@@ -113,6 +117,7 @@ def ggg(df: pd.DataFrame, region: str, x_axis: tuple[str], value: str) -> tuple[
 
             region,
             {'display': 'block'},
+            new_region_value
         )
     else:
         return (
@@ -142,6 +147,7 @@ def ggg(df: pd.DataFrame, region: str, x_axis: tuple[str], value: str) -> tuple[
 
             region,
             {'display': 'block'},
+            new_region_value
         )
 
 
