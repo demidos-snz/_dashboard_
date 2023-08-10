@@ -45,6 +45,9 @@ def get_geodata(path: str = 'result.geojson') -> geojson.FeatureCollection:
     return data
 
 
+geodata: geojson.FeatureCollection = get_geodata()
+
+
 def b64_image(image_filename: str) -> str:
     with open(image_filename, 'rb') as f:
         image = f.read()
@@ -140,6 +143,97 @@ def ggg(df: pd.DataFrame, region: str, x_axis: tuple[str], value: str) -> tuple[
             region,
             {'display': 'block'},
         )
+
+
+def get_map(df: pd.DataFrame, value: str) -> go.Figure:
+    if value in ['cpd_previous_period_debts_sum', 'cr_debt_sum']:
+        color_continuous_scale = [
+            (0, 'rgb(186, 227, 242)'), (0, 'rgb(186, 227, 242)'),
+            (0.0001, 'rgb(173, 211, 100)'), (0.15, 'rgb(173, 211, 100)'),
+            (0.15, 'rgb(173, 211, 100)'), (0.4, 'rgb(173, 211, 100)'),
+            (0.4, 'rgb(253, 211, 17)'), (0.6, 'rgb(253, 211, 17)'),
+            (0.6, 'rgb(245, 153, 46)'), (0.8, 'rgb(245, 153, 46)'),
+            (0.8, 'rgb(239, 75, 46)'), (1, 'rgb(239, 75, 46)'),
+        ]
+    else:
+        color_continuous_scale = [
+            (0, 'rgb(186, 227, 242)'), (0.00001, 'rgb(186, 227, 242)'),
+            (0.00001, 'rgb(239, 75, 46)'), (0.0001, 'rgb(239, 75, 46)'),
+            (0.0001, 'rgb(245, 153, 46)'), (0.1, 'rgb(245, 153, 46)'),
+            (0.1, 'rgb(253, 211, 17)'), (0.2, 'rgb(253, 211, 17)'),
+            (0.2, 'rgb(173, 211, 100)'), (1, 'rgb(173, 211, 100)'),
+        ]
+    if value.startswith('cpd'):
+        custom_data = [df['region_name'],
+                       make_human_readable_data(column=df['cpd_charged_sum']),
+                       make_human_readable_data(column=df['cpd_already_payed_sum']),
+                       make_human_readable_data(column=df['cpd_previous_period_debts_sum'])]
+        hovertemp: str = '<b>%{customdata[0]}</b><br>'
+        hovertemp += '<br><b>Собираемость платежей за ЖКУ</b><br>'
+        hovertemp += '<br><b>%{customdata[1]}</b> - Начислено<br>'
+        hovertemp += '<br><b>%{customdata[2]}</b> - Оплачено<br>'
+        hovertemp += '<br><b>%{customdata[3]}</b> - Задолженность<br>'
+    else:
+        custom_data = [df['region_name'],
+                       make_human_readable_data(column=df['cr_total_accured_contib_sum']),
+                       make_human_readable_data(column=df['cr_total_paid_contib_sum']),
+                       make_human_readable_data(column=df['cr_debt_sum'])]
+        hovertemp: str = '<b>%{customdata[0]}</b><br>'
+        hovertemp += '<br><b>Собираемость взносов на капремонт</b><br>'
+        hovertemp += '<br><b>%{customdata[1]}</b> - Начислено<br>'
+        hovertemp += '<br><b>%{customdata[2]}</b> - Оплачено<br>'
+        hovertemp += '<br><b>%{customdata[3]}</b> - Задолженность<br>'
+
+    fig = px.choropleth_mapbox(
+        data_frame=df,
+        geojson=geodata,
+        locations=df.region_code,
+        color=value,
+        hover_name=df.region_name,
+        hover_data={
+            'region_code': False,
+            'cpd_charged_sum': True,
+            'cpd_already_payed_sum': True,
+            'cpd_previous_period_debts_sum': True,
+            'cr_total_accured_contib_sum': True,
+            'cr_total_paid_contib_sum': True,
+            'cr_debt_sum': True,
+        },
+        color_continuous_scale=color_continuous_scale,
+        featureidkey='properties.cartodb_id',
+        mapbox_style='white-bg',
+        zoom=2,
+        center={'lat': 69, 'lon': 105},
+        labels={
+            'cpd_charged_sum': '',
+            'cpd_already_payed_sum': '',
+            'cpd_previous_period_debts_sum': '',
+            'cr_total_accured_contib_sum': '',
+            'cr_total_paid_contib_sum': '',
+            'cr_debt_sum': '',
+        },
+        custom_data=custom_data,
+    )
+
+    fig.update_traces(
+        hovertemplate=hovertemp,
+        marker_line_width=1,
+        marker_line_color='white',
+    )
+    fig.update_layout(
+        margin={"r": 0, "t": 0, "l": 0, "b": 0},
+        height=730,
+        # clickmode='event+select',
+        hoverlabel={
+            'bgcolor': 'white',
+            'bordercolor': '#dee2e6',
+            'font_size': 16,
+            'font_family': 'Helvetica',
+            'align': 'left',
+        },
+        hoverlabel_font_color='black',
+    )
+    return fig
 
 
 # fixme name
