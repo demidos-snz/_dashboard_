@@ -23,6 +23,7 @@ def df_all_data_from_client(client: Client) -> pd.DataFrame:
          max_memory_usage=40000000000;
     """
     df: pd.DataFrame = client.query_dataframe(query=query)
+    client.disconnect()
     df: pd.DataFrame = __convert_columns_type(df=df)
     return df
 
@@ -118,4 +119,5 @@ def df_sunburst(client: Client) -> pd.DataFrame:
          max_memory_usage=40000000000;
     """
     df: pd.DataFrame = client.query_dataframe(query=query)
+    client.disconnect()
     return df

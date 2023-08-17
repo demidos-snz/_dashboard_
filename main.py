@@ -1,9 +1,7 @@
 import typing as t
 
 import dash_bootstrap_components as dbc
-import geojson
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
 from clickhouse_driver import Client
 from dash import Dash, html, dcc, Output, Input, State
@@ -13,7 +11,7 @@ from secrets_ import CONNECT_PARAMS
 from settings import (
     DEFAULT_DROPDOWN_REGIONS_VALUE, REGIONS, ORG_ICON_PATH, MKD_ICON_PATH, JD_ICON_PATH,
     MONTHS, DEFAULT_DROPDOWN_REGIONS_PLACEHOLDER,
-    TITLE_APP, FIELDS_NAMES_CR, FIELDS_NAMES_CPD, RADIO_ITEM_STATS_CATEGORY,
+    TITLE_APP, FIELDS_NAMES_CR, FIELDS_NAMES_CPD, RADIO_ITEM_STATS_CATEGORY, CONFIGS_FOR_GRAPHS,
 )
 from utils import (
     b64_image, get_cpd_total_integer,
@@ -39,8 +37,6 @@ df_grouped_by_regions_default: pd.DataFrame = df_with_filter(
 )
 
 client.disconnect()
-
-geodata: geojson.FeatureCollection = get_geodata()
 
 # server = flask.Flask(__name__)
 
@@ -178,7 +174,7 @@ app.layout = html.Div(
                         config={
                             'scrollZoom': False,
                             'displayModeBar': False,
-                            # 'doubleClick': 'reset'
+                            'doubleClick': 'reset'
                         },
                     ),
                     id='div_map',
@@ -211,7 +207,7 @@ app.layout = html.Div(
                                             dcc.Dropdown(
                                                 id='dropdown_months',
                                                 options=MONTHS,
-                                                value=CURRENT_MONTH_FROM_DB.title(),
+                                                value=CURRENT_MONTH_FROM_DB,
                                                 clearable=False,
                                             ),
                                         ),
@@ -237,9 +233,9 @@ app.layout = html.Div(
                                 dcc.RadioItems(
                                     id='radio_items',
                                     options={
-                                        FIELDS_NAMES_CPD[0]: '\tпо начислениям',
-                                        FIELDS_NAMES_CPD[1]: '\tпо оплате',
-                                        FIELDS_NAMES_CPD[2]: '\tпо задолженности',
+                                        FIELDS_NAMES_CPD[0]: '\tначисления',
+                                        FIELDS_NAMES_CPD[1]: '\tоплата',
+                                        FIELDS_NAMES_CPD[2]: '\tзадолженность',
                                     },
                                     value=FIELDS_NAMES_CPD[0],
                                 ),
@@ -267,18 +263,12 @@ app.layout = html.Div(
                             [
                                 dcc.Graph(
                                     id='graph_charges_sum',
-                                    config={
-                                        'scrollZoom': False,
-                                        'displayModeBar': False,
-                                    },
+                                    config=CONFIGS_FOR_GRAPHS,
                                 ),
 
                                 dcc.Graph(
                                     id='graph_already_payed_sum',
-                                    config={
-                                        'scrollZoom': False,
-                                        'displayModeBar': False,
-                                    },
+                                    config=CONFIGS_FOR_GRAPHS,
                                 ),
                             ],
                             className='two_graphs_in_row',
@@ -286,16 +276,10 @@ app.layout = html.Div(
 
                         dcc.Graph(
                             id='graph_debts_sum',
-                            config={
-                                'scrollZoom': False,
-                                'displayModeBar': False,
-                            },
+                            config=CONFIGS_FOR_GRAPHS,
                         ),
                     ],
                     id='div_payment_service',
-                    style={
-                        'display': 'none',
-                    },
                 ),
 
                 html.Div(
@@ -304,18 +288,12 @@ app.layout = html.Div(
                             [
                                 dcc.Graph(
                                     id='graph_cr_charges_sum',
-                                    config={
-                                        'scrollZoom': False,
-                                        'displayModeBar': False,
-                                    },
+                                    config=CONFIGS_FOR_GRAPHS,
                                 ),
 
                                 dcc.Graph(
                                     id='graph_cr_payed_sum',
-                                    config={
-                                        'scrollZoom': False,
-                                        'displayModeBar': False,
-                                    },
+                                    config=CONFIGS_FOR_GRAPHS,
                                 ),
                             ],
                             className='two_graphs_in_row',
@@ -323,14 +301,10 @@ app.layout = html.Div(
 
                         dcc.Graph(
                             id='graph_sunburst',
-                            config={
-                                'scrollZoom': False,
-                                'displayModeBar': False,
-                            },
+                            config=CONFIGS_FOR_GRAPHS,
                         ),
                     ],
                     id='div_capital_repair',
-                    style={'display': 'none'},
                 )
             ],
         ),
@@ -380,7 +354,7 @@ def display_map(click: int, value: str, stats_category_value: str, year: int, mo
         df_grouped_by_regions: pd.DataFrame = df_with_filter(df=df_all, year=year, month=CURRENT_MONTH_FROM_DB_INT)
         ip_open: bool = True
     else:
-        month: str = month.lower()
+        month: str = month
         df_grouped_by_regions: pd.DataFrame = df_with_filter(df=df_all, year=year, month=month_int)
 
     if stats_category_value == RADIO_ITEM_STATS_CATEGORY[0]:
@@ -405,10 +379,10 @@ def display_map(click: int, value: str, stats_category_value: str, year: int, mo
         f'оплачено за {month} {year}',
         f'задолженность за {month} {year}',
         year,
-        month.title(),
-        {field_names[0]: '\tпо начислениям',
-         field_names[1]: '\tпо оплате',
-         field_names[2]: '\tпо задолженности'},
+        month,
+        {field_names[0]: '\tначисления',
+         field_names[1]: '\tоплата',
+         field_names[2]: '\tзадолженность'},
         value,
         f'Всего в системе ({stats_category_value}):'
     )

@@ -25,7 +25,6 @@ locale.setlocale(locale.LC_TIME, 'ru_RU')
 #                                         sep=';')
 client: Client = Client(**CONNECT_PARAMS)
 DF_SUNBURST = df_sunburst(client=client)
-client.disconnect()
 
 
 def get_cpd_total_integer(df: pd.DataFrame, field_name: str) -> str:
@@ -38,7 +37,6 @@ def get_cr_total_integer(df: pd.DataFrame, field_name: str, region: str) -> str:
     return '{:,}'.format(total_sum).replace(',', ' ')
 
 
-# fixme path
 def get_geodata(path: str = 'result.geojson') -> geojson.FeatureCollection:
     with open(file=path, encoding='utf-8') as f:
         data = geojson.load(f)
@@ -255,14 +253,13 @@ def get_figure1(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
     fig.update_traces(
         line_color='rgb(245, 153, 46)',
         line_width=3,
-        hovertemplate='<br>'.join(['Начислено %{y}']),
+        hovertemplate='<br>'.join(['Начислено %{y:.0f} руб.']),
     )
     # fixme year
     fig.add_bar(x=x_axis, y=df['cpd_charged_sum_y'], name='2023 год')
     fig.update_traces(
         marker_color='rgb(173, 211, 100)',
-        customdata=np.transpose(df['cpd_charged_sum_y']),
-        hovertemplate='<br>'.join(['Начислено %{y}']),
+        hovertemplate='<br>'.join(['Начислено %{y:.0f} руб.']),
     )
     fig.update_layout(
         title='Динамика начислений за ЖКУ, руб.',
@@ -293,13 +290,13 @@ def get_figure2(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
     fig.update_traces(
         line_color='rgb(245, 153, 46)',
         line_width=3,
-        hovertemplate='<br>'.join(['Оплачено %{y}']),
+        hovertemplate='<br>'.join(['Оплачено %{y:.0f} руб.']),
     )
     # fixme year
     fig.add_bar(x=x_axis, y=df['cpd_already_payed_sum_y'], name='2023 год')
     fig.update_traces(
         marker_color='rgb(173, 211, 100)',
-        hovertemplate='<br>'.join(['Оплачено %{y}']),
+        hovertemplate='<br>'.join(['Оплачено %{y:.0f} руб.']),
     )
     fig.update_layout(
         title='Динамика оплат за ЖКУ, руб.',
@@ -327,7 +324,7 @@ def get_figure3(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
             name='Сумма начислений',
             marker={'color': 'rgb(173, 211, 100)'},
             width=0.2,
-            hovertemplate='<br>'.join(['%{y}']),
+            hovertemplate='<br>'.join(['%{y:.0f} руб.']),
         ),
     )
     fig.add_trace(
@@ -337,7 +334,7 @@ def get_figure3(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
             name='Сумма оплат',
             marker={'color': 'rgb(253, 211, 17)'},
             width=0.2,
-            hovertemplate='<br>'.join(['%{y}']),
+            hovertemplate='<br>'.join(['%{y:.0f} руб.']),
         ),
     )
     fig.add_trace(
@@ -347,13 +344,13 @@ def get_figure3(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
             name='Дебиторская задолженность',
             marker={'color': 'rgb(239, 75, 46)'},
             width=0.2,
-            hovertemplate='<br>'.join(['%{y}']),
+            hovertemplate='<br>'.join(['%{y:.0f} руб.']),
         ),
     )
     fig.update_layout(
         # fixme year
         title='Динамика начислений, оплат и задолженности за ЖКУ в 2023 году, руб.',
-        title_x=0.1,
+        title_x=0.5,
         barmode='group',
         hovermode='x unified',
         hoverlabel={
@@ -362,6 +359,8 @@ def get_figure3(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
             'font_size': 16,
         },
     )
+    return fig
+
 
 def get_figure4(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
     fig = px.line(
@@ -374,13 +373,13 @@ def get_figure4(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
     fig.update_traces(
         line_color='rgb(176, 101, 194)',
         line_width=3,
-        hovertemplate='<br>'.join(['Начислено %{y}']),
+        hovertemplate='<br>'.join(['Начислено %{y:.0f} руб.']),
     )
     fig.add_bar(x=x_axis, y=df['cr_total_accured_contib_sum_y'], name='2023 год')
     fig.update_traces(
         marker_color='rgb(61, 165, 226)',
         customdata=np.transpose(df['cr_total_accured_contib_sum_y']),
-        hovertemplate='<br>'.join(['Начислено %{y}']),
+        hovertemplate='<br>'.join(['Начислено %{y:.0f} руб.']),
     )
     fig.update_layout(
         title='Начисление взносов за капительный ремонт, руб.',
@@ -408,12 +407,12 @@ def get_figure5(df: pd.DataFrame, x_axis: tuple[str]) -> go.Figure:
     fig.update_traces(
         line_color='rgb(176, 101, 194)',
         line_width=3,
-        hovertemplate='<br>'.join(['Оплачено %{y}']),
+        hovertemplate='<br>'.join(['Оплачено %{y:.0f} руб.']),
     )
     fig.add_bar(x=x_axis, y=df['cr_total_paid_contib_sum_y'], name='2023 год')
     fig.update_traces(
         marker_color='rgb(61, 165, 226)',
-        hovertemplate='<br>'.join(['Оплачено %{y}']),
+        hovertemplate='<br>'.join(['Оплачено %{y:.0f} руб.']),
     )
     fig.update_layout(
         title='Сбор взносов за капитальный ремонт, руб.',
@@ -468,7 +467,7 @@ def get_sunburst(df: pd.DataFrame) -> go.Figure:
 
 def get_current_month_from_db(client: Client) -> str:
     month: int = get_current_month_from_db_int(client=client)
-    return calendar.month_name[month].lower()
+    return calendar.month_name[month]
     # return morph.parse(calendar.month_name[month])[0].normal_form.lower()
 
 
@@ -493,8 +492,8 @@ def get_current_year_from_db(years: list[int]) -> int:
 
 def convert_month_from_dashboard_to_int(month: str) -> int:
     return strptime(month, '%B').tm_mon
-    monthes_list = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль',
-                    'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь']
+    # monthes_list = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль',
+    #                 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь']
     # return monthes_list.index(month) + 1
 
 

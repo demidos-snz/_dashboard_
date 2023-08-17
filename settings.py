@@ -130,6 +130,11 @@ NEW_TER: pd.DataFrame = pd.DataFrame(
     },
 )
 
+CONFIGS_FOR_GRAPHS = {
+    'scrollZoom': False,
+    'displayModeBar': False
+}
+
 MONTHS: tuple[str] = tuple(month for month in list(calendar.month_name) if month)
 # MONTHS = tuple(morph.parse(month)[0].normal_form.lower() for month in list(calendar.month_name) if month)
 
